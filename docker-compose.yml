@@ -21,26 +21,32 @@ services:
     volumes:
       - snaglist-db-data:/var/lib/postgresql/data
 
-  localstack:
-    image: localstack/localstack:4.9.2
+  s3:
+    build:
+      context: ./deploy/home-lab/minio
+      dockerfile: Dockerfile
+    command: server /data --console-address ":9001"
     environment:
-      SERVICES: s3
+      MINIO_ROOT_USER: snaglist
+      MINIO_ROOT_PASSWORD: snaglist123
     ports:
-      - "4566:4566"
+      - "9000:9000"
+      - "9001:9001"
     volumes:
-      - snaglist-localstack-data:/var/lib/localstack
+      - snaglist-minio-data:/data
 
   s3-bootstrap:
-    image: amazon/aws-cli:latest
+    build:
+      context: ./deploy/home-lab/minio
+      dockerfile: mc.Dockerfile
     depends_on:
-      - localstack
-    environment:
-      AWS_ACCESS_KEY_ID: test
-      AWS_SECRET_ACCESS_KEY: test
-      AWS_DEFAULT_REGION: us-east-1
+      - s3
     entrypoint: >
       /bin/sh -c "
-      aws --endpoint-url=http://localstack:4566 s3 mb s3://snaglist-photos || true
+      until mc alias set local http://s3:9000 snaglist snaglist123 2>/dev/null; do
+        sleep 2
+      done &&
+      mc mb --ignore-existing local/snaglist-photos
       "
 
   mailpit:
@@ -55,14 +61,14 @@ services:
       dockerfile: src/SnagList.Api/Dockerfile
     depends_on:
       - db
-      - localstack
+      - s3
       - keycloak
     environment:
       ConnectionStrings__SnagList: "Host=db;Database=snaglist;Username=snaglist;Password=snaglist"
       Storage__BucketName: snaglist-photos
-      Storage__AccessKey: test
-      Storage__SecretKey: test
-      Storage__ServiceUrl: http://localstack:4566
+      Storage__AccessKey: snaglist
+      Storage__SecretKey: snaglist123
+      Storage__ServiceUrl: http://s3:9000
       Email__Host: mailpit
       Email__Port: "1025"
       Email__FromAddress: snaglist@example.com
@@ -80,14 +86,14 @@ services:
       dockerfile: src/SnagList.Mcp/Dockerfile
     depends_on:
       - db
-      - localstack
+      - s3
       - keycloak
     environment:
       ConnectionStrings__SnagList: "Host=db;Database=snaglist;Username=snaglist;Password=snaglist"
       Storage__BucketName: snaglist-photos
-      Storage__AccessKey: test
-      Storage__SecretKey: test
-      Storage__ServiceUrl: http://localstack:4566
+      Storage__AccessKey: snaglist
+      Storage__SecretKey: snaglist123
+      Storage__ServiceUrl: http://s3:9000
       Email__Host: mailpit
       Email__Port: "1025"
       Email__FromAddress: snaglist@example.com
@@ -118,4 +124,4 @@ services:
 
 volumes:
   snaglist-db-data:
-  snaglist-localstack-data:
+  snaglist-minio-data:
