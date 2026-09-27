@@ -6,9 +6,12 @@ using SnagList.Api.Auth.Local;
 using SnagList.Api.Authorization;
 using SnagList.Api.ErrorHandling;
 using SnagList.Application.Abstractions;
+using SnagList.Application.Locations.Commands;
+using SnagList.Application.Locations.Queries;
 using SnagList.Infrastructure.Audit;
 using SnagList.Infrastructure.Clock;
 using SnagList.Infrastructure.Email;
+using SnagList.Api.Endpoints;
 using SnagList.Infrastructure.Persistence;
 using SnagList.Infrastructure.Persistence.Queries;
 using SnagList.Infrastructure.Persistence.Repositories;
@@ -27,6 +30,11 @@ builder.Services.AddScoped<ILocationQueries, EfLocationQueries>();
 builder.Services.AddScoped<ISnagQueries, EfSnagQueries>();
 builder.Services.AddScoped<IAuditWriter, EfAuditWriter>();
 builder.Services.AddSingleton<IClock, SystemClock>();
+
+builder.Services.AddScoped<CreateLocationCommandHandler>();
+builder.Services.AddScoped<UpdateLocationCommandHandler>();
+builder.Services.AddScoped<RetireLocationCommandHandler>();
+builder.Services.AddScoped<ListLocationsQueryHandler>();
 
 var storage = builder.Configuration.GetSection("Storage");
 var storageBucket = storage["BucketName"] ?? throw new InvalidOperationException("Storage:BucketName is required.");
@@ -62,6 +70,8 @@ app.UseAuthorization();
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 app.MapOpenApi("/openapi/v1.json");
+
+app.MapLocationEndpoints();
 
 app.Run();
 
