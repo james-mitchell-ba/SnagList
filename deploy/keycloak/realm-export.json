@@ -8,7 +8,37 @@
       { "name": "Maintenance", "description": "Can triage, resolve, and manage Locations" }
     ]
   },
+  "clientScopes": [
+    {
+      "name": "snaglist-api-audience",
+      "protocol": "openid-connect",
+      "protocolMappers": [
+        {
+          "name": "snaglist-api-audience-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "snaglist-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
   "clients": [
+    {
+      "clientId": "snaglist-web",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://localhost:5081/authentication/login-callback", "http://localhost:5081/"],
+      "webOrigins": ["http://localhost:5081"],
+      "attributes": { "pkce.code.challenge.method": "S256" },
+      "defaultClientScopes": ["snaglist-api-audience", "profile", "email", "roles"]
+    },
     {
       "clientId": "snaglist-api",
       "enabled": true,

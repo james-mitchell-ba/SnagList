@@ -8,6 +8,7 @@
     <Project Path="src/SnagList.Domain/SnagList.Domain.csproj" />
     <Project Path="src/SnagList.Infrastructure/SnagList.Infrastructure.csproj" />
     <Project Path="src/SnagList.Mcp/SnagList.Mcp.csproj" />
+    <Project Path="src/SnagList.Web/SnagList.Web.csproj" />
     <Project Path="src/SnagList.SeedData/SnagList.SeedData.csproj" />
   </Folder>
   <Folder Name="/tests/">
