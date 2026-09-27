@@ -1,5 +1,15 @@
+:root {
+    --sl-brand: #0b4f6c;
+    --sl-brand-dark: #073547;
+    --sl-severity-high: #fd7e14;
+}
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: #f5f7f8;
 }
 
 h1:focus {
@@ -12,8 +22,39 @@ a, .btn-link {
 
 .btn-primary {
     color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    background-color: var(--sl-brand);
+    border-color: var(--sl-brand-dark);
+}
+
+    .btn-primary:hover,
+    .btn-primary:focus {
+        background-color: var(--sl-brand-dark);
+        border-color: var(--sl-brand-dark);
+    }
+
+.page-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 3rem;
+}
+
+.card {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.table > :not(caption) > * > * {
+    vertical-align: middle;
+}
+
+.bg-severity-high {
+    background-color: var(--sl-severity-high);
+    color: #fff;
+}
+
+.empty-state {
+    color: #6c757d;
+    padding: 2rem 0;
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {

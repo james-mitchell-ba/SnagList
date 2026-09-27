@@ -3,22 +3,46 @@
 
 <div class="page">
     <header>
-        <nav>
-            <a href="/">Snags</a>
-            <a href="/snags/report">Report</a>
-            <a href="/locations">Locations</a>
-            <AuthorizeView>
-                <Authorized>
-                    <span>@context.User.GetStaffName() (@string.Join(", ", context.User.GetStaffRoles()))</span>
-                    <a href="authentication/logout">Log out</a>
-                </Authorized>
-                <NotAuthorized>
-                    <a href="authentication/login">Log in</a>
-                </NotAuthorized>
-            </AuthorizeView>
+        <nav class="navbar navbar-expand-md navbar-dark app-navbar">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/">SnagList</a>
+                <button class="navbar-toggler" type="button" @onclick="ToggleNav" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="@NavCollapseClass" id="mainNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                        <li class="nav-item"><NavLink class="nav-link" href="/" Match="NavLinkMatch.All">Snags</NavLink></li>
+                        <li class="nav-item"><NavLink class="nav-link" href="/snags/report">Report</NavLink></li>
+                        <li class="nav-item"><NavLink class="nav-link" href="/locations">Locations</NavLink></li>
+                    </ul>
+                    <AuthorizeView>
+                        <Authorized>
+                            <span class="navbar-text me-3">
+                                @context.User.GetStaffName()
+                                @foreach (var role in context.User.GetStaffRoles())
+                                {
+                                    <span class="badge bg-light text-dark ms-1">@role</span>
+                                }
+                            </span>
+                            <a class="btn btn-outline-light btn-sm" href="authentication/logout">Log out</a>
+                        </Authorized>
+                        <NotAuthorized>
+                            <a class="btn btn-outline-light btn-sm" href="authentication/login">Log in</a>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                </div>
+            </div>
         </nav>
     </header>
-    <main>
+    <main class="page-content">
         @Body
     </main>
 </div>
+
+@code {
+    private bool _navOpen;
+
+    private string NavCollapseClass => _navOpen ? "collapse navbar-collapse show" : "collapse navbar-collapse";
+
+    private void ToggleNav() => _navOpen = !_navOpen;
+}

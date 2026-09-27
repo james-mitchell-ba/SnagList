@@ -6,40 +6,52 @@
 @inject SnagListApiClient Api
 @inject NavigationManager Navigation
 
-<h1>Report a Snag</h1>
+<h1 class="mb-4">Report a Snag</h1>
 
-<EditForm Model="_model" OnSubmit="SubmitAsync">
-    <label>
-        Location:
-        <select @bind="_model.LocationId">
-            @foreach (var location in _locations)
-            {
-                <option value="@location.Id">@location.Name</option>
-            }
-        </select>
-    </label>
-    <label>Sub-location: <InputText @bind-Value="_model.SubLocation" /></label>
-    <label>
-        Category:
-        <select @bind="_model.Category">
-            @foreach (var category in Enum.GetValues<SnagCategory>())
-            {
-                <option value="@category">@category</option>
-            }
-        </select>
-    </label>
-    <label>
-        Severity:
-        <select @bind="_model.Severity">
-            @foreach (var severity in Enum.GetValues<SnagSeverity>())
-            {
-                <option value="@severity">@severity</option>
-            }
-        </select>
-    </label>
-    <label>Description: <InputTextArea id="description" @bind-Value="_model.Description" /></label>
-    <button type="submit">Report</button>
-</EditForm>
+<div class="card">
+    <div class="card-body">
+        <EditForm Model="_model" OnSubmit="SubmitAsync">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Location</label>
+                    <select class="form-select" @bind="_model.LocationId">
+                        @foreach (var location in _locations)
+                        {
+                            <option value="@location.Id">@location.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Sub-location</label>
+                    <InputText class="form-control" @bind-Value="_model.SubLocation" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" @bind="_model.Category">
+                        @foreach (var category in Enum.GetValues<SnagCategory>())
+                        {
+                            <option value="@category">@category</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Severity</label>
+                    <select class="form-select" @bind="_model.Severity">
+                        @foreach (var severity in Enum.GetValues<SnagSeverity>())
+                        {
+                            <option value="@severity">@severity</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="description">Description</label>
+                    <InputTextArea id="description" class="form-control" rows="4" @bind-Value="_model.Description" />
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Report</button>
+        </EditForm>
+    </div>
+</div>
 
 @code {
     private readonly FormModel _model = new();
