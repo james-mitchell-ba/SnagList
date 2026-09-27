@@ -34,7 +34,11 @@ covers multiple independent subsystems). Each plan produces working, testable so
 4. [implementation-plan-04-home-lab-deployment.md](implementation-plan-04-home-lab-deployment.md) —
    home-lab deployment: idempotent Keycloak realm reconciliation via the Admin REST API (a real
    persistent instance this repo doesn't own), per-app MinIO, GHCR image publishing. **Written.**
-5. AWS deployment (Entra ID, S3, Lambda). *Not yet written.*
+5. [implementation-plan-05-aws-deployment.md](implementation-plan-05-aws-deployment.md) — AWS
+   deployment: Lambda container images behind API Gateway, Entra ID auth, RDS, S3, SES, all via
+   Terraform. **Written.**
+
+All five plans are now written.
 
 This spec was produced with the superpowers brainstorming skill, working from the same
 architectural patterns as the JointBooking repository (Clean Architecture layering, HATEOAS +
