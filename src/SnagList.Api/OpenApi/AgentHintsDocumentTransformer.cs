@@ -3,6 +3,7 @@ namespace SnagList.Api.OpenApi;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
+using SnagList.Application;
 
 public sealed class AgentHintsDocumentTransformer : IOpenApiDocumentTransformer
 {

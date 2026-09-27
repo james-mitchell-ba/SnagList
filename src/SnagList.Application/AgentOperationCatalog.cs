@@ -1,4 +1,4 @@
-namespace SnagList.Api.OpenApi;
+namespace SnagList.Application;
 
 public static class AgentOperationCatalog
 {
