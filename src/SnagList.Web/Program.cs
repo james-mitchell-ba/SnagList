@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using SnagList.Web;
+using SnagList.Web.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -25,5 +26,6 @@ builder.Services.AddHttpClient("SnagListApi", client => client.BaseAddress = new
         return handler;
     });
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("SnagListApi"));
+builder.Services.AddScoped<SnagListApiClient>();
 
 await builder.Build().RunAsync();

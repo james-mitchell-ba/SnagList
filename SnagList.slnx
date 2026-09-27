@@ -18,6 +18,7 @@
     <Project Path="tests/SnagList.Domain.Tests/SnagList.Domain.Tests.csproj" />
     <Project Path="tests/SnagList.Infrastructure.Tests/SnagList.Infrastructure.Tests.csproj" />
     <Project Path="tests/SnagList.Mcp.Tests/SnagList.Mcp.Tests.csproj" />
+    <Project Path="tests/SnagList.Web.Tests/SnagList.Web.Tests.csproj" />
     <Project Path="tests/SnagList.SeedData.Tests/SnagList.SeedData.Tests.csproj" />
   </Folder>
 </Solution>
