@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using SnagList.Web;
+using SnagList.Web.Authentication;
 using SnagList.Web.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -13,7 +14,7 @@ builder.Services.AddOidcAuthentication(options =>
     builder.Configuration.Bind("Auth", options.ProviderOptions);
     options.ProviderOptions.ResponseType = "code";
     options.ProviderOptions.DefaultScopes.Add("snaglist-api-audience");
-});
+}).AddAccountClaimsPrincipalFactory<SnagListAccountClaimsPrincipalFactory>();
 
 var apiBaseUrl = builder.Configuration["Api:BaseUrl"]
     ?? throw new InvalidOperationException("Api:BaseUrl is required.");
