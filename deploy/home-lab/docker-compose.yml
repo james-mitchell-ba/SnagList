@@ -15,27 +15,29 @@ services:
       retries: 20
 
   s3:
-    image: localstack/localstack:4.9.2
+    build:
+      context: ./minio
+      dockerfile: Dockerfile
+    command: server /data
     environment:
-      SERVICES: s3
+      MINIO_ROOT_USER: ${SNAGLIST_MINIO_ROOT_USER:?}
+      MINIO_ROOT_PASSWORD: ${SNAGLIST_MINIO_ROOT_PASSWORD:?}
     volumes:
-      - snaglist-s3-data:/var/lib/localstack
+      - snaglist-minio-data:/data
     networks: [snaglist-private]
 
   s3-bootstrap:
-    image: amazon/aws-cli:latest
+    build:
+      context: ./minio
+      dockerfile: mc.Dockerfile
     depends_on: [s3]
     networks: [snaglist-private]
-    environment:
-      AWS_ACCESS_KEY_ID: ${SNAGLIST_S3_ACCESS_KEY:?}
-      AWS_SECRET_ACCESS_KEY: ${SNAGLIST_S3_SECRET_KEY:?}
-      AWS_DEFAULT_REGION: us-east-1
     entrypoint: >
       /bin/sh -c "
-      until aws --endpoint-url=http://s3:4566 s3 mb s3://snaglist-photos 2>/dev/null
-        || aws --endpoint-url=http://s3:4566 s3 ls s3://snaglist-photos; do
+      until mc alias set local http://s3:9000 ${SNAGLIST_MINIO_ROOT_USER:?} ${SNAGLIST_MINIO_ROOT_PASSWORD:?} 2>/dev/null; do
         sleep 2
-      done
+      done &&
+      mc mb --ignore-existing local/snaglist-photos
       "
 
   mailpit:
@@ -51,9 +53,9 @@ services:
     environment:
       ConnectionStrings__SnagList: "Host=db;Database=snaglist;Username=snaglist;Password=${SNAGLIST_DB_PASSWORD:?}"
       Storage__BucketName: snaglist-photos
-      Storage__AccessKey: ${SNAGLIST_S3_ACCESS_KEY:?}
-      Storage__SecretKey: ${SNAGLIST_S3_SECRET_KEY:?}
-      Storage__ServiceUrl: http://s3:4566
+      Storage__AccessKey: ${SNAGLIST_MINIO_ROOT_USER:?}
+      Storage__SecretKey: ${SNAGLIST_MINIO_ROOT_PASSWORD:?}
+      Storage__ServiceUrl: http://s3:9000
       Email__Host: mailpit
       Email__Port: "1025"
       Email__FromAddress: snaglist@home.example
@@ -71,9 +73,9 @@ services:
     environment:
       ConnectionStrings__SnagList: "Host=db;Database=snaglist;Username=snaglist;Password=${SNAGLIST_DB_PASSWORD:?}"
       Storage__BucketName: snaglist-photos
-      Storage__AccessKey: ${SNAGLIST_S3_ACCESS_KEY:?}
-      Storage__SecretKey: ${SNAGLIST_S3_SECRET_KEY:?}
-      Storage__ServiceUrl: http://s3:4566
+      Storage__AccessKey: ${SNAGLIST_MINIO_ROOT_USER:?}
+      Storage__SecretKey: ${SNAGLIST_MINIO_ROOT_PASSWORD:?}
+      Storage__ServiceUrl: http://s3:9000
       Email__Host: mailpit
       Email__Port: "1025"
       Email__FromAddress: snaglist@home.example
@@ -113,4 +115,4 @@ networks:
 
 volumes:
   snaglist-db-data:
-  snaglist-s3-data:
+  snaglist-minio-data:
