@@ -1,0 +1,26 @@
+# Deterministic ontology term check. Installed by the ontology kit.
+# Needs no secrets and no network access.
+#
+# This is the blocking half of the drift defence. The optional companion,
+# ontology-drift-review.yml, is advisory.
+
+name: Ontology term check
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/build-ontology.mjs --check
+      - run: node scripts/check-ontology-terms.mjs

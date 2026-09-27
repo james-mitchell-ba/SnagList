@@ -1,0 +1,11 @@
+{
+  "ontologyPath": "docs/ontology.md",
+  "namespaceUri": "https://ontology.example/snaglist#",
+  "sections": {
+    "required": ["Entities"],
+    "optional": ["External Systems", "Subsystems", "Aggregate Roots", "Value Objects", "Domain Events", "Use Cases"]
+  },
+  "allowlist": [],
+  "bannedAliases": [],
+  "ignorePaths": []
+}

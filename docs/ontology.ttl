@@ -1,0 +1,12 @@
+@prefix : <https://ontology.example/snaglist#> .
+@prefix kit: <https://ontology-kit.dev/schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+: kit:projectName "SnagList" .
+
+:PropertyIssue a owl:Class ;
+    rdfs:subClassOf kit:Entity ;
+    rdfs:label "PropertyIssue" ;
+    rdfs:comment "A reported problem with a property — the thing SnagList exists to record, per the README (\"Report Property Issues\"). No code exists yet, so its properties, lifecycle, and relationships are undecided pending the first implementation." ;
+    kit:hasProperty "_(TBD — no fields defined yet)_" .
