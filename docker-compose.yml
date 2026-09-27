@@ -99,6 +99,13 @@ services:
     ports:
       - "5090:8080"
 
+  web:
+    build:
+      context: .
+      dockerfile: src/SnagList.Web/Dockerfile
+    ports:
+      - "5081:8080"
+
   seed:
     build:
       context: .
