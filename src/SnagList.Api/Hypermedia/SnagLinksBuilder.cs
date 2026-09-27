@@ -51,4 +51,11 @@ public static class SnagLinksBuilder
 
         return links;
     }
+
+    public static IReadOnlyDictionary<string, ApiLink> BuildSummaryLinks(Guid snagId) => new Dictionary<string, ApiLink>
+    {
+        ["self"] = new($"/api/v1/snags/{snagId}", "GET", "GetSnag"),
+        ["comments"] = new($"/api/v1/snags/{snagId}/comments", "POST", "AddSnagComment"),
+        ["photos"] = new($"/api/v1/snags/{snagId}/photos", "POST", "UploadSnagPhoto"),
+    };
 }

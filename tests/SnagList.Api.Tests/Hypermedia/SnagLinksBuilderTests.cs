@@ -56,4 +56,12 @@ public class SnagLinksBuilderTests
         Assert.Contains("comments", links.Keys);
         Assert.Contains("photos", links.Keys);
     }
+
+    [Fact]
+    public void BuildSummaryLinks_carries_only_self_comments_and_photos()
+    {
+        var links = SnagLinksBuilder.BuildSummaryLinks(SnagId);
+
+        Assert.Equal(["comments", "photos", "self"], links.Keys.OrderBy(k => k));
+    }
 }

@@ -8,6 +8,8 @@ using SnagList.Api.ErrorHandling;
 using SnagList.Application.Abstractions;
 using SnagList.Application.Locations.Commands;
 using SnagList.Application.Locations.Queries;
+using SnagList.Application.Snags.Commands;
+using SnagList.Application.Snags.Queries;
 using SnagList.Infrastructure.Audit;
 using SnagList.Infrastructure.Clock;
 using SnagList.Infrastructure.Email;
@@ -35,6 +37,12 @@ builder.Services.AddScoped<CreateLocationCommandHandler>();
 builder.Services.AddScoped<UpdateLocationCommandHandler>();
 builder.Services.AddScoped<RetireLocationCommandHandler>();
 builder.Services.AddScoped<ListLocationsQueryHandler>();
+
+builder.Services.AddScoped<ReportSnagCommandHandler>();
+builder.Services.AddScoped<EditSnagCommandHandler>();
+builder.Services.AddScoped<WithdrawSnagCommandHandler>();
+builder.Services.AddScoped<ListSnagsQueryHandler>();
+builder.Services.AddScoped<GetSnagQueryHandler>();
 
 var storage = builder.Configuration.GetSection("Storage");
 var storageBucket = storage["BucketName"] ?? throw new InvalidOperationException("Storage:BucketName is required.");
@@ -72,6 +80,7 @@ app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 app.MapOpenApi("/openapi/v1.json");
 
 app.MapLocationEndpoints();
+app.MapSnagEndpoints();
 
 app.Run();
 
