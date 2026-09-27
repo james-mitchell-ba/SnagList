@@ -31,7 +31,9 @@ covers multiple independent subsystems). Each plan produces working, testable so
 3. [implementation-plan-03-blazor-web.md](implementation-plan-03-blazor-web.md) — Blazor WASM
    frontend, authenticated via OIDC against Keycloak, with a hypermedia-driven action-button
    component that renders purely from each response's `_links`. **Written.**
-4. Home-lab deployment (shared Keycloak, per-app MinIO). *Not yet written.*
+4. [implementation-plan-04-home-lab-deployment.md](implementation-plan-04-home-lab-deployment.md) —
+   home-lab deployment: idempotent Keycloak realm reconciliation via the Admin REST API (a real
+   persistent instance this repo doesn't own), per-app MinIO, GHCR image publishing. **Written.**
 5. AWS deployment (Entra ID, S3, Lambda). *Not yet written.*
 
 This spec was produced with the superpowers brainstorming skill, working from the same
