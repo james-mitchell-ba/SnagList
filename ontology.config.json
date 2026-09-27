@@ -26,7 +26,8 @@
     { "term": "GetMe", "reason": "MCP tool / query name mirroring GET /api/v1/me, not a separate domain concept" },
     { "term": "ApiLink", "reason": "JointBooking's own class name, referenced in the spec for comparison only" },
     { "term": "StaffCapability", "reason": "JointBooking's own class name, referenced in the spec for comparison only" },
-    { "term": "Admin", "reason": "hypothetical role name discussed and rejected for SnagList during design; not part of the domain" }
+    { "term": "Admin", "reason": "hypothetical role name discussed and rejected for SnagList during design; not part of the domain" },
+    { "term": "ClaimsPrincipal", "reason": "ASP.NET Core / .NET framework type, not a domain concept" }
   ],
   "bannedAliases": [],
   "ignorePaths": ["docs/specs/**/implementation-plan-*.md"]
