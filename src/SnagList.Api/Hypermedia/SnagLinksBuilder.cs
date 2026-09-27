@@ -1,6 +1,6 @@
 namespace SnagList.Api.Hypermedia;
 
-using SnagList.Api.Authorization;
+using SnagList.Authorization;
 using SnagList.Api.Contracts;
 using SnagList.Domain.Snags;
 using SnagList.Domain.Staff;

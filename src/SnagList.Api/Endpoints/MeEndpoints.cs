@@ -1,6 +1,6 @@
 namespace SnagList.Api.Endpoints;
 
-using SnagList.Api.Authorization;
+using SnagList.Authorization;
 using SnagList.Domain.Staff;
 
 public static class MeEndpoints

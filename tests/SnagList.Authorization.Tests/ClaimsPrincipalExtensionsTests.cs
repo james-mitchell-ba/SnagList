@@ -1,7 +1,7 @@
-namespace SnagList.Api.Tests.Authorization;
+namespace SnagList.Authorization.Tests;
 
 using System.Security.Claims;
-using SnagList.Api.Authorization;
+using SnagList.Authorization;
 using SnagList.Domain.Staff;
 using Xunit;
 

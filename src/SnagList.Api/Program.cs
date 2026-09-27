@@ -3,7 +3,7 @@ using Amazon.S3;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SnagList.Api.Auth.Local;
-using SnagList.Api.Authorization;
+using SnagList.Authorization;
 using SnagList.Api.ErrorHandling;
 using SnagList.Application.Abstractions;
 using SnagList.Application.Locations.Commands;

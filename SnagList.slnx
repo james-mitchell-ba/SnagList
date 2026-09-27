@@ -3,6 +3,7 @@
     <Project Path="src/SnagList.Api.Auth.Local/SnagList.Api.Auth.Local.csproj" />
     <Project Path="src/SnagList.Api/SnagList.Api.csproj" />
     <Project Path="src/SnagList.Application/SnagList.Application.csproj" />
+    <Project Path="src/SnagList.Authorization/SnagList.Authorization.csproj" />
     <Project Path="src/SnagList.Domain/SnagList.Domain.csproj" />
     <Project Path="src/SnagList.Infrastructure/SnagList.Infrastructure.csproj" />
     <Project Path="src/SnagList.SeedData/SnagList.SeedData.csproj" />
@@ -10,6 +11,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/SnagList.Api.Tests/SnagList.Api.Tests.csproj" />
     <Project Path="tests/SnagList.Application.Tests/SnagList.Application.Tests.csproj" />
+    <Project Path="tests/SnagList.Authorization.Tests/SnagList.Authorization.Tests.csproj" />
     <Project Path="tests/SnagList.Domain.Tests/SnagList.Domain.Tests.csproj" />
     <Project Path="tests/SnagList.Infrastructure.Tests/SnagList.Infrastructure.Tests.csproj" />
     <Project Path="tests/SnagList.SeedData.Tests/SnagList.SeedData.Tests.csproj" />

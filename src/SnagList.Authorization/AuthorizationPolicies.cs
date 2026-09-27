@@ -1,4 +1,4 @@
-namespace SnagList.Api.Authorization;
+namespace SnagList.Authorization;
 
 using SnagList.Domain.Staff;
 

@@ -1,6 +1,6 @@
 namespace SnagList.Api.Middleware;
 
-using SnagList.Api.Authorization;
+using SnagList.Authorization;
 using SnagList.Application.Staff.Commands;
 
 public sealed class StaffIdentitySyncMiddleware(RequestDelegate next)
