@@ -1,0 +1,18 @@
+# FOR VERIFYING THIS PLAN ONLY. Simulates "the home-lab's existing shared Keycloak" so the
+# reconciliation logic and the full stack can be exercised locally without a real home-lab.
+# The real home-lab deployment (deploy/home-lab/docker-compose.yml) never uses this file — its
+# Keycloak already exists, persistently, owned outside this repo.
+services:
+  stand-in-keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8180:8080"
+    networks: [homelab-ingress-stand-in]
+
+networks:
+  homelab-ingress-stand-in:
+    name: homelab-ingress-stand-in
