@@ -70,6 +70,7 @@ services:
       Auth__Local__Authority: http://keycloak:8080/realms/snaglist
       Auth__Local__Audience: snaglist-api
       Auth__Local__AdditionalValidIssuer: http://localhost:8080/realms/snaglist
+      Notifications__MaintenanceTeamEmail: maintenance@example.com
     ports:
       - "5080:8080"
 

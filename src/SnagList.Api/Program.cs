@@ -8,6 +8,7 @@ using SnagList.Api.ErrorHandling;
 using SnagList.Application.Abstractions;
 using SnagList.Application.Locations.Commands;
 using SnagList.Application.Locations.Queries;
+using SnagList.Application.Notifications;
 using SnagList.Application.Snags.Commands;
 using SnagList.Application.Snags.Queries;
 using SnagList.Infrastructure.Audit;
@@ -54,6 +55,9 @@ builder.Services.AddScoped<UploadSnagPhotoCommandHandler>();
 
 builder.Services.AddScoped<IStaffIdentityRepository, EfStaffIdentityRepository>();
 builder.Services.AddScoped<SyncStaffIdentityCommandHandler>();
+builder.Services.Configure<NotificationOptions>(builder.Configuration.GetSection("Notifications"));
+builder.Services.AddScoped(sp => sp.GetRequiredService<IOptions<NotificationOptions>>().Value);
+builder.Services.AddScoped<SnagNotificationDispatcher>();
 
 var storage = builder.Configuration.GetSection("Storage");
 var storageBucket = storage["BucketName"] ?? throw new InvalidOperationException("Storage:BucketName is required.");

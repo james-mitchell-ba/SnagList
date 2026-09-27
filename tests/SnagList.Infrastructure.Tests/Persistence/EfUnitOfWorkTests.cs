@@ -1,10 +1,12 @@
 namespace SnagList.Infrastructure.Tests.Persistence;
 
 using Microsoft.EntityFrameworkCore;
+using SnagList.Application.Notifications;
 using SnagList.Application.Snags;
 using SnagList.Domain.Locations;
 using SnagList.Domain.Snags;
 using SnagList.Infrastructure.Persistence;
+using SnagList.Infrastructure.Persistence.Repositories;
 using SnagList.Infrastructure.Tests.Testing;
 using Xunit;
 
@@ -28,12 +30,15 @@ public class EfUnitOfWorkTests(PostgresFixture fixture)
         var snagA = await contextA.Snags.FirstAsync(s => s.Id == snag.Id);
         var snagB = await contextB.Snags.FirstAsync(s => s.Id == snag.Id);
 
+        var noopDispatcher = new SnagNotificationDispatcher(
+            new NoOpEmailSender(), new EfStaffIdentityRepository(contextA), new NotificationOptions());
+
         snagA.Edit("4th floor", SnagCategory.Electrical, SnagSeverity.Low, "edited by A");
-        await new EfUnitOfWork(contextA).SaveChangesAsync(default);
+        await new EfUnitOfWork(contextA, noopDispatcher).SaveChangesAsync(default);
 
         snagB.Edit("5th floor", SnagCategory.Electrical, SnagSeverity.Low, "edited by B, stale");
         var ex = await Assert.ThrowsAsync<SnagVersionConflictException>(
-            () => new EfUnitOfWork(contextB).SaveChangesAsync(default));
+            () => new EfUnitOfWork(contextB, noopDispatcher).SaveChangesAsync(default));
 
         Assert.Equal(snag.Id, ex.SnagId);
     }
