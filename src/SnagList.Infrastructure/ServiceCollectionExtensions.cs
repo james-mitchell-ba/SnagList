@@ -1,5 +1,6 @@
 namespace SnagList.Infrastructure;
 
+using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.SimpleEmailV2;
@@ -19,6 +20,12 @@ using SnagList.Infrastructure.Storage;
 
 public static class ServiceCollectionExtensions
 {
+    // Read explicitly from AWS_REGION — the variable Lambda's runtime always sets — instead of the
+    // AWS SDK's own resolution chain, which falls through to an IMDS call that isn't reachable on
+    // every host (it fails fast rather than falling back, breaking DI construction in CI).
+    private static readonly RegionEndpoint AwsRegion =
+        RegionEndpoint.GetBySystemName(Environment.GetEnvironmentVariable("AWS_REGION") ?? "us-east-1");
+
     public static IServiceCollection AddSnagListInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<SnagListDbContext>(options => options.UseNpgsql(
@@ -52,7 +59,7 @@ public static class ServiceCollectionExtensions
             case "S3":
                 // Real S3: credentials come from the Lambda execution role via the default AWS credential
                 // chain, never from configuration — there is nothing else to set here.
-                services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client());
+                services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client(new AmazonS3Config { RegionEndpoint = AwsRegion }));
                 break;
             default:
                 throw new InvalidOperationException($"Unknown Storage:Provider '{storage["Provider"]}'.");
@@ -66,7 +73,7 @@ public static class ServiceCollectionExtensions
                 services.AddSingleton<IEmailSender>(sp => new SmtpEmailSender(sp.GetRequiredService<IOptions<SmtpEmailSenderOptions>>().Value));
                 break;
             case "Ses":
-                services.AddSingleton<IAmazonSimpleEmailServiceV2>(_ => new AmazonSimpleEmailServiceV2Client());
+                services.AddSingleton<IAmazonSimpleEmailServiceV2>(_ => new AmazonSimpleEmailServiceV2Client(AwsRegion));
                 services.Configure<SesEmailSenderOptions>(configuration.GetSection("Email"));
                 services.AddSingleton<IEmailSender>(sp => new SesEmailSender(
                     sp.GetRequiredService<IAmazonSimpleEmailServiceV2>(), sp.GetRequiredService<IOptions<SesEmailSenderOptions>>().Value));
