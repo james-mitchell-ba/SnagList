@@ -29,5 +29,5 @@
     { "term": "Admin", "reason": "hypothetical role name discussed and rejected for SnagList during design; not part of the domain" }
   ],
   "bannedAliases": [],
-  "ignorePaths": []
+  "ignorePaths": ["docs/specs/**/implementation-plan-*.md"]
 }

@@ -17,7 +17,19 @@ Read in order:
 8. [Deployment: AWS](07-deployment-aws.md)
 9. [Testing & non-functional requirements](08-testing-and-nonfunctional.md)
 
-The implementation plan derived from this spec lives alongside it as `implementation-plan.md`.
+## Implementation plans
+
+This is too much surface area for one plan (writing-plans' own scope check: split when a spec
+covers multiple independent subsystems). Each plan produces working, testable software on its own:
+
+1. [implementation-plan-01-core-domain-api.md](implementation-plan-01-core-domain-api.md) — domain
+   model, Clean Architecture layering, Postgres persistence, the REST API, Keycloak auth, email
+   notifications, and the local docker deployment. **Written.**
+2. MCP server, built against the agent operation catalog this plan's Task 20 produces. *Not yet
+   written.*
+3. Blazor WASM frontend, consuming the REST API from plan 1. *Not yet written.*
+4. Home-lab deployment (shared Keycloak, per-app MinIO). *Not yet written.*
+5. AWS deployment (Entra ID, S3, Lambda). *Not yet written.*
 
 This spec was produced with the superpowers brainstorming skill, working from the same
 architectural patterns as the JointBooking repository (Clean Architecture layering, HATEOAS +
