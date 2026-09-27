@@ -66,9 +66,14 @@ builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi(options => options.AddDocumentTransformer<AgentHintsDocumentTransformer>());
 
+var corsAllowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+builder.Services.AddCors(options => options.AddPolicy("Web", policy =>
+    policy.WithOrigins(corsAllowedOrigins).AllowAnyHeader().AllowAnyMethod()));
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
+app.UseCors("Web");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<StaffIdentitySyncMiddleware>();
