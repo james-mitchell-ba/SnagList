@@ -1,0 +1,71 @@
+@page "/snags/report"
+@using global::SnagList.Contracts.Locations
+@using global::SnagList.Contracts.Snags
+@using global::SnagList.Domain.Snags
+@using global::SnagList.Web.Services
+@inject SnagListApiClient Api
+@inject NavigationManager Navigation
+
+<h1>Report a Snag</h1>
+
+<EditForm Model="_model" OnSubmit="SubmitAsync">
+    <label>
+        Location:
+        <select @bind="_model.LocationId">
+            @foreach (var location in _locations)
+            {
+                <option value="@location.Id">@location.Name</option>
+            }
+        </select>
+    </label>
+    <label>Sub-location: <InputText @bind-Value="_model.SubLocation" /></label>
+    <label>
+        Category:
+        <select @bind="_model.Category">
+            @foreach (var category in Enum.GetValues<SnagCategory>())
+            {
+                <option value="@category">@category</option>
+            }
+        </select>
+    </label>
+    <label>
+        Severity:
+        <select @bind="_model.Severity">
+            @foreach (var severity in Enum.GetValues<SnagSeverity>())
+            {
+                <option value="@severity">@severity</option>
+            }
+        </select>
+    </label>
+    <label>Description: <InputTextArea id="description" @bind-Value="_model.Description" /></label>
+    <button type="submit">Report</button>
+</EditForm>
+
+@code {
+    private readonly FormModel _model = new();
+    private List<LocationResponse> _locations = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var page = await Api.ListLocationsAsync(includeRetired: false, cursor: null, limit: 100, CancellationToken.None);
+        _locations = [.. page.Items];
+        if (_locations.Count > 0) _model.LocationId = _locations[0].Id;
+    }
+
+    private async Task SubmitAsync()
+    {
+        var id = await Api.ReportSnagAsync(
+            new ReportSnagRequest(_model.LocationId, _model.SubLocation, _model.Category, _model.Severity, _model.Description),
+            CancellationToken.None);
+        Navigation.NavigateTo($"/snags/{id}");
+    }
+
+    private sealed class FormModel
+    {
+        public Guid LocationId { get; set; }
+        public string SubLocation { get; set; } = "";
+        public SnagCategory Category { get; set; }
+        public SnagSeverity Severity { get; set; }
+        public string Description { get; set; } = "";
+    }
+}

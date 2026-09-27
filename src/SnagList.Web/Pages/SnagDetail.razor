@@ -1,0 +1,138 @@
+@page "/snags/{SnagId:guid}"
+@using global::SnagList.Contracts.Snags
+@using global::SnagList.Domain.Snags
+@using global::SnagList.Web.Services
+@using global::SnagList.Web.Shared
+@inject SnagListApiClient Api
+
+@if (_snag is not null)
+{
+    <h1>@_snag.SubLocation</h1>
+    <p>Status: @_snag.Status | Category: @_snag.Category | Severity: @_snag.Severity</p>
+    <p>@_snag.Description</p>
+
+    <SnagActionButtons Links="_snag.Links"
+        OnEdit="BeginEdit"
+        OnWithdraw="() => TransitionAsync((id, v, ct) => Api.WithdrawSnagAsync(id, v, ct))"
+        OnAcknowledge="() => TransitionAsync(Api.AcknowledgeSnagAsync)"
+        OnStart="() => TransitionAsync(Api.StartSnagWorkAsync)"
+        OnResolve="() => TransitionAsync(Api.ResolveSnagAsync)"
+        OnClose="() => TransitionAsync(Api.CloseSnagAsync)"
+        OnReject="() => _rejecting = true" />
+
+    @if (_editing)
+    {
+        <EditForm Model="_editModel" OnValidSubmit="EditAsync">
+            <InputText @bind-Value="_editModel.SubLocation" />
+            <select @bind="_editModel.Category">
+                @foreach (var category in Enum.GetValues<SnagCategory>())
+                {
+                    <option value="@category">@category</option>
+                }
+            </select>
+            <select @bind="_editModel.Severity">
+                @foreach (var severity in Enum.GetValues<SnagSeverity>())
+                {
+                    <option value="@severity">@severity</option>
+                }
+            </select>
+            <InputTextArea @bind-Value="_editModel.Description" />
+            <button type="submit">Save</button>
+        </EditForm>
+    }
+
+    @if (_rejecting)
+    {
+        <EditForm Model="_rejectModel" OnValidSubmit="RejectAsync">
+            <InputTextArea @bind-Value="_rejectModel.Reason" placeholder="Reason" />
+            <button type="submit">Confirm reject</button>
+        </EditForm>
+    }
+
+    <h2>Comments</h2>
+    @foreach (var comment in _snag.Comments)
+    {
+        <p><strong>@comment.AuthorName</strong>: @comment.Body</p>
+    }
+    <EditForm Model="_commentModel" OnValidSubmit="AddCommentAsync">
+        <InputTextArea @bind-Value="_commentModel.Body" />
+        <button type="submit">Add comment</button>
+    </EditForm>
+
+    <h2>Photos</h2>
+    @foreach (var photo in _snag.Photos)
+    {
+        <a href="@photo.Href.Href" target="_blank">@photo.FileName</a>
+    }
+    <InputFile OnChange="UploadPhotoAsync" />
+}
+
+@code {
+    [Parameter] public Guid SnagId { get; set; }
+    private SnagDetailResponse? _snag;
+    private bool _editing;
+    private bool _rejecting;
+    private readonly CommentModel _commentModel = new();
+    private readonly EditModel _editModel = new();
+    private readonly RejectModel _rejectModel = new();
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync() => _snag = await Api.GetSnagAsync(SnagId, CancellationToken.None);
+
+    private void BeginEdit()
+    {
+        _editModel.SubLocation = _snag!.SubLocation;
+        _editModel.Category = _snag.Category;
+        _editModel.Severity = _snag.Severity;
+        _editModel.Description = _snag.Description;
+        _editing = true;
+    }
+
+    private async Task EditAsync()
+    {
+        await Api.EditSnagAsync(SnagId,
+            new EditSnagRequest(_editModel.SubLocation, _editModel.Category, _editModel.Severity, _editModel.Description, _snag!.Version),
+            CancellationToken.None);
+        _editing = false;
+        await LoadAsync();
+    }
+
+    private async Task TransitionAsync(Func<Guid, int, CancellationToken, Task> action)
+    {
+        await action(SnagId, _snag!.Version, CancellationToken.None);
+        await LoadAsync();
+    }
+
+    private async Task RejectAsync()
+    {
+        await Api.RejectSnagAsync(SnagId, _rejectModel.Reason, _snag!.Version, CancellationToken.None);
+        _rejecting = false;
+        await LoadAsync();
+    }
+
+    private async Task AddCommentAsync()
+    {
+        await Api.AddSnagCommentAsync(SnagId, _commentModel.Body, CancellationToken.None);
+        _commentModel.Body = "";
+        await LoadAsync();
+    }
+
+    private async Task UploadPhotoAsync(Microsoft.AspNetCore.Components.Forms.InputFileChangeEventArgs e)
+    {
+        await using var stream = e.File.OpenReadStream(maxAllowedSize: 10_000_000);
+        await Api.UploadSnagPhotoAsync(SnagId, e.File.Name, e.File.ContentType, stream, CancellationToken.None);
+        await LoadAsync();
+    }
+
+    private sealed class CommentModel { public string Body { get; set; } = ""; }
+    private sealed class RejectModel { public string Reason { get; set; } = ""; }
+
+    private sealed class EditModel
+    {
+        public string SubLocation { get; set; } = "";
+        public SnagCategory Category { get; set; }
+        public SnagSeverity Severity { get; set; }
+        public string Description { get; set; } = "";
+    }
+}

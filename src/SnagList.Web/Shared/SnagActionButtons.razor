@@ -1,0 +1,43 @@
+@using global::SnagList.Contracts
+
+<div class="snag-actions">
+    @if (Links.ContainsKey("edit"))
+    {
+        <button id="action-edit" @onclick="OnEdit">Edit</button>
+    }
+    @if (Links.ContainsKey("withdraw"))
+    {
+        <button id="action-withdraw" @onclick="OnWithdraw">Withdraw</button>
+    }
+    @if (Links.ContainsKey("acknowledge"))
+    {
+        <button id="action-acknowledge" @onclick="OnAcknowledge">Acknowledge</button>
+    }
+    @if (Links.ContainsKey("start"))
+    {
+        <button id="action-start" @onclick="OnStart">Start work</button>
+    }
+    @if (Links.ContainsKey("resolve"))
+    {
+        <button id="action-resolve" @onclick="OnResolve">Resolve</button>
+    }
+    @if (Links.ContainsKey("close"))
+    {
+        <button id="action-close" @onclick="OnClose">Close</button>
+    }
+    @if (Links.ContainsKey("reject"))
+    {
+        <button id="action-reject" @onclick="OnReject">Reject</button>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyDictionary<string, ApiLink> Links { get; set; } = null!;
+    [Parameter] public EventCallback OnEdit { get; set; }
+    [Parameter] public EventCallback OnWithdraw { get; set; }
+    [Parameter] public EventCallback OnAcknowledge { get; set; }
+    [Parameter] public EventCallback OnStart { get; set; }
+    [Parameter] public EventCallback OnResolve { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnReject { get; set; }
+}

@@ -1,0 +1,81 @@
+@page "/"
+@using global::SnagList.Contracts.Snags
+@using global::SnagList.Domain.Snags
+@using global::SnagList.Web.Services
+@inject SnagListApiClient Api
+
+<h1>Snags</h1>
+
+<div>
+    <select @onchange="OnStatusChanged">
+        <option value="">All statuses</option>
+        @foreach (var status in Enum.GetValues<SnagStatus>())
+        {
+            <option value="@status">@status</option>
+        }
+    </select>
+    <a href="/report">Report a Snag</a>
+</div>
+
+@if (snags is null)
+{
+    <p>Loading…</p>
+}
+else if (snags.Count == 0)
+{
+    <p>No Snags found.</p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr><th>Sub-location</th><th>Category</th><th>Severity</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody>
+            @foreach (var snag in snags)
+            {
+                <tr>
+                    <td>@snag.SubLocation</td>
+                    <td>@snag.Category</td>
+                    <td>@snag.Severity</td>
+                    <td>@snag.Status</td>
+                    <td><a href="/snags/@snag.Id">View</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @if (nextCursor is not null)
+    {
+        <button id="load-more" @onclick="LoadMore">Load more</button>
+    }
+}
+
+@code {
+    private List<SnagSummaryResponse> snags = null!;
+    private string? nextCursor;
+    private SnagStatus? filterStatus;
+
+    protected override async Task OnInitializedAsync() => await ReloadAsync();
+
+    private async Task OnStatusChanged(ChangeEventArgs e)
+    {
+        filterStatus = string.IsNullOrEmpty(e.Value?.ToString())
+            ? null
+            : Enum.Parse<SnagStatus>(e.Value!.ToString()!);
+        await ReloadAsync();
+    }
+
+    private async Task ReloadAsync()
+    {
+        var page = await Api.ListSnagsAsync(new SnagListFilter(Status: filterStatus, Limit: 20), CancellationToken.None);
+        snags = page.Items.ToList();
+        nextCursor = page.NextCursor;
+    }
+
+    private async Task LoadMore()
+    {
+        var page = await Api.ListSnagsAsync(new SnagListFilter(Status: filterStatus, Cursor: nextCursor, Limit: 20), CancellationToken.None);
+        snags.AddRange(page.Items);
+        nextCursor = page.NextCursor;
+    }
+}

@@ -1,0 +1,86 @@
+@page "/locations"
+@using System.Net
+@using global::SnagList.Contracts.Locations
+@using global::SnagList.Web.Services
+@inject SnagListApiClient Api
+
+<h1>Locations</h1>
+
+<table>
+    <thead><tr><th>Name</th><th>Address</th><th>Active</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var location in _locations)
+        {
+            <tr>
+                <td>@location.Name</td>
+                <td>@location.Address</td>
+                <td>@location.IsActive</td>
+                <td>
+                    @if (location.Links.ContainsKey("retire"))
+                    {
+                        <button class="retire" @onclick="() => RetireAsync(location.Id)">Retire</button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (_creating)
+{
+    <EditForm Model="_createModel" OnValidSubmit="CreateAsync">
+        <input id="name" @bind="_createModel.Name" placeholder="Name" />
+        <input id="address" @bind="_createModel.Address" placeholder="Address" />
+        <button type="submit">Create</button>
+    </EditForm>
+    @if (_createError is not null)
+    {
+        <p class="error">@_createError</p>
+    }
+}
+else
+{
+    <button id="new-location" @onclick="() => _creating = true">New Location</button>
+}
+
+@code {
+    private List<LocationResponse> _locations = [];
+    private bool _creating;
+    private string? _createError;
+    private readonly CreateModel _createModel = new();
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        var page = await Api.ListLocationsAsync(includeRetired: true, cursor: null, limit: 100, CancellationToken.None);
+        _locations = [.. page.Items];
+    }
+
+    private async Task CreateAsync()
+    {
+        try
+        {
+            await Api.CreateLocationAsync(new CreateLocationRequest(_createModel.Name, _createModel.Address), CancellationToken.None);
+            _creating = false;
+            _createError = null;
+            await LoadAsync();
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
+        {
+            _createError = "You need the Maintenance role to create a Location.";
+        }
+    }
+
+    private async Task RetireAsync(Guid id)
+    {
+        await Api.RetireLocationAsync(id, CancellationToken.None);
+        await LoadAsync();
+    }
+
+    private sealed class CreateModel
+    {
+        public string Name { get; set; } = "";
+        public string Address { get; set; } = "";
+    }
+}

@@ -1,0 +1,16 @@
+variable "name_prefix" { type = string }
+variable "github_repository" { type = string } # e.g. "james-mitchell-ba/SnagList"
+variable "image_tag" { type = string }
+variable "private_subnet_ids" { type = list(string) }
+variable "lambda_security_group_id" { type = string }
+variable "db_app_secret_arn" { type = string }
+variable "db_address" { type = string }
+variable "db_name" { type = string }
+variable "photos_bucket_arn" { type = string }
+variable "photos_bucket_name" { type = string }
+variable "email_from_address" { type = string }
+variable "maintenance_team_email" { type = string }
+variable "entra_tenant_id" { type = string }
+variable "entra_audience" { type = string }
+variable "lambda_config_access_policy_json" { type = string }
+variable "lambda_ses_send_policy_json" { type = string }

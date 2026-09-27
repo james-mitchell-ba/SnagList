@@ -1,0 +1,121 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - ./deploy/keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+    ports:
+      - "8080:8080"
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: snaglist
+      POSTGRES_USER: snaglist
+      POSTGRES_PASSWORD: snaglist
+    ports:
+      - "5433:5432"
+    volumes:
+      - snaglist-db-data:/var/lib/postgresql/data
+
+  localstack:
+    image: localstack/localstack:4.9.2
+    environment:
+      SERVICES: s3
+    ports:
+      - "4566:4566"
+    volumes:
+      - snaglist-localstack-data:/var/lib/localstack
+
+  s3-bootstrap:
+    image: amazon/aws-cli:latest
+    depends_on:
+      - localstack
+    environment:
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_DEFAULT_REGION: us-east-1
+    entrypoint: >
+      /bin/sh -c "
+      aws --endpoint-url=http://localstack:4566 s3 mb s3://snaglist-photos || true
+      "
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "8026:8025"
+      - "1026:1025"
+
+  api:
+    build:
+      context: .
+      dockerfile: src/SnagList.Api/Dockerfile
+    depends_on:
+      - db
+      - localstack
+      - keycloak
+    environment:
+      ConnectionStrings__SnagList: "Host=db;Database=snaglist;Username=snaglist;Password=snaglist"
+      Storage__BucketName: snaglist-photos
+      Storage__AccessKey: test
+      Storage__SecretKey: test
+      Storage__ServiceUrl: http://localstack:4566
+      Email__Host: mailpit
+      Email__Port: "1025"
+      Email__FromAddress: snaglist@example.com
+      Email__UseTls: "false"
+      Auth__Local__Authority: http://keycloak:8080/realms/snaglist
+      Auth__Local__Audience: snaglist-api
+      Auth__Local__AdditionalValidIssuer: http://localhost:8080/realms/snaglist
+      Notifications__MaintenanceTeamEmail: maintenance@example.com
+    ports:
+      - "5080:8080"
+
+  mcp:
+    build:
+      context: .
+      dockerfile: src/SnagList.Mcp/Dockerfile
+    depends_on:
+      - db
+      - localstack
+      - keycloak
+    environment:
+      ConnectionStrings__SnagList: "Host=db;Database=snaglist;Username=snaglist;Password=snaglist"
+      Storage__BucketName: snaglist-photos
+      Storage__AccessKey: test
+      Storage__SecretKey: test
+      Storage__ServiceUrl: http://localstack:4566
+      Email__Host: mailpit
+      Email__Port: "1025"
+      Email__FromAddress: snaglist@example.com
+      Email__UseTls: "false"
+      Notifications__MaintenanceTeamEmail: maintenance@example.com
+      Auth__Local__Authority: http://keycloak:8080/realms/snaglist
+      Auth__Local__Audience: snaglist-api
+      Auth__Local__AdditionalValidIssuer: http://localhost:8080/realms/snaglist
+    ports:
+      - "5090:8080"
+
+  web:
+    build:
+      context: .
+      dockerfile: src/SnagList.Web/Dockerfile
+    ports:
+      - "5081:8080"
+
+  seed:
+    build:
+      context: .
+      dockerfile: src/SnagList.SeedData/Dockerfile
+    profiles: ["seed"]
+    depends_on:
+      - db
+    environment:
+      ConnectionStrings__SnagList: "Host=db;Database=snaglist;Username=snaglist;Password=snaglist"
+
+volumes:
+  snaglist-db-data:
+  snaglist-localstack-data:

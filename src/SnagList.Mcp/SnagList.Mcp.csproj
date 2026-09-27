@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\SnagList.Application\SnagList.Application.csproj" />
+    <ProjectReference Include="..\SnagList.Infrastructure\SnagList.Infrastructure.csproj" />
+    <ProjectReference Include="..\SnagList.Authorization\SnagList.Authorization.csproj" />
+    <ProjectReference Include="..\SnagList.Api.Auth.Local\SnagList.Api.Auth.Local.csproj" />
+    <ProjectReference Include="..\SnagList.Api.Auth.EntraId\SnagList.Api.Auth.EntraId.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Amazon.Lambda.AspNetCoreServer.Hosting" Version="2.2.1" />
+    <PackageReference Include="AWSSDK.SecretsManager" Version="4.0.100.14" />
+    <PackageReference Include="ModelContextProtocol.AspNetCore" Version="2.2.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>
