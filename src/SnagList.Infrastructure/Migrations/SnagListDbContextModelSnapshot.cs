@@ -109,7 +109,6 @@ namespace SnagList.Infrastructure.Migrations
             modelBuilder.Entity("SnagList.Domain.Snags.SnagComment", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("AuthorName")

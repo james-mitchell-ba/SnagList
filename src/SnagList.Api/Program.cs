@@ -44,6 +44,11 @@ builder.Services.AddScoped<WithdrawSnagCommandHandler>();
 builder.Services.AddScoped<ListSnagsQueryHandler>();
 builder.Services.AddScoped<GetSnagQueryHandler>();
 
+builder.Services.AddScoped<ChangeSnagStatusCommandHandler>();
+builder.Services.AddScoped<RejectSnagCommandHandler>();
+builder.Services.AddScoped<AddSnagCommentCommandHandler>();
+builder.Services.AddScoped<UploadSnagPhotoCommandHandler>();
+
 var storage = builder.Configuration.GetSection("Storage");
 var storageBucket = storage["BucketName"] ?? throw new InvalidOperationException("Storage:BucketName is required.");
 builder.Services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client(

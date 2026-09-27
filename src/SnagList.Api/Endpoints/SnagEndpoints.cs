@@ -3,6 +3,7 @@ namespace SnagList.Api.Endpoints;
 using Microsoft.AspNetCore.Mvc;
 using SnagList.Api.Authorization;
 using SnagList.Api.Contracts;
+using SnagList.Application.Abstractions;
 using SnagList.Api.Contracts.Snags;
 using SnagList.Api.Hypermedia;
 using SnagList.Application.Snags.Commands;
@@ -69,6 +70,66 @@ public static class SnagEndpoints
             await handler.HandleAsync(new WithdrawSnagCommand(id, http.User.GetStaffId(), request.ExpectedVersion), ct);
             return Results.NoContent();
         }).WithName("WithdrawSnag");
+
+        Task<IResult> ChangeStatus(Guid id, ChangeSnagStatusRequest request, SnagStatus target,
+            ChangeSnagStatusCommandHandler handler, HttpContext http, CancellationToken ct) =>
+            handler.HandleAsync(new ChangeSnagStatusCommand(id, target, http.User.GetStaffId(), request.ExpectedVersion), ct)
+                .ContinueWith<IResult>(_ => Results.NoContent(), ct);
+
+        group.MapPost("/{id:guid}/acknowledge", (Guid id, ChangeSnagStatusRequest request, ChangeSnagStatusCommandHandler handler, HttpContext http, CancellationToken ct) =>
+                ChangeStatus(id, request, SnagStatus.Acknowledged, handler, http, ct))
+            .RequireAuthorization(PolicyNames.Maintenance).WithName("AcknowledgeSnag");
+
+        group.MapPost("/{id:guid}/start", (Guid id, ChangeSnagStatusRequest request, ChangeSnagStatusCommandHandler handler, HttpContext http, CancellationToken ct) =>
+                ChangeStatus(id, request, SnagStatus.InProgress, handler, http, ct))
+            .RequireAuthorization(PolicyNames.Maintenance).WithName("StartSnagWork");
+
+        group.MapPost("/{id:guid}/resolve", (Guid id, ChangeSnagStatusRequest request, ChangeSnagStatusCommandHandler handler, HttpContext http, CancellationToken ct) =>
+                ChangeStatus(id, request, SnagStatus.Resolved, handler, http, ct))
+            .RequireAuthorization(PolicyNames.Maintenance).WithName("ResolveSnag");
+
+        group.MapPost("/{id:guid}/close", (Guid id, ChangeSnagStatusRequest request, ChangeSnagStatusCommandHandler handler, HttpContext http, CancellationToken ct) =>
+                ChangeStatus(id, request, SnagStatus.Closed, handler, http, ct))
+            .RequireAuthorization(PolicyNames.Maintenance).WithName("CloseSnag");
+
+        group.MapPost("/{id:guid}/reject", async (Guid id, RejectSnagRequest request, RejectSnagCommandHandler handler, HttpContext http, CancellationToken ct) =>
+            {
+                await handler.HandleAsync(new RejectSnagCommand(
+                    id, http.User.GetStaffId(), http.User.GetStaffName(), request.Reason, request.ExpectedVersion), ct);
+                return Results.NoContent();
+            })
+            .RequireAuthorization(PolicyNames.Maintenance).WithName("RejectSnag");
+
+        group.MapPost("/{id:guid}/comments", async (Guid id, AddSnagCommentRequest request, AddSnagCommentCommandHandler handler, HttpContext http, CancellationToken ct) =>
+        {
+            await handler.HandleAsync(new AddSnagCommentCommand(id, http.User.GetStaffId(), http.User.GetStaffName(), request.Body), ct);
+            return Results.NoContent();
+        }).WithName("AddSnagComment");
+
+        group.MapPost("/{id:guid}/photos", async (Guid id, HttpRequest httpRequest, UploadSnagPhotoCommandHandler handler, CancellationToken ct) =>
+        {
+            if (!httpRequest.HasFormContentType) return Results.BadRequest();
+            var form = await httpRequest.ReadFormAsync(ct);
+            var file = form.Files.GetFile("file");
+            if (file is null) return Results.BadRequest();
+
+            await using var stream = file.OpenReadStream();
+            await handler.HandleAsync(new UploadSnagPhotoCommand(id, file.FileName, file.ContentType, stream, file.Length), ct);
+            return Results.NoContent();
+        }).WithName("UploadSnagPhoto").DisableAntiforgery();
+
+        group.MapGet("/{id:guid}/photos/{photoKey}", async (
+            Guid id, string photoKey, GetSnagQueryHandler getSnag, IBlobStorage blobStorage, CancellationToken ct) =>
+        {
+            var detail = await getSnag.HandleAsync(new GetSnagQuery(id), ct);
+            if (detail is null) return Results.NotFound();
+
+            var blobKey = $"snags/{id}/{photoKey}";
+            if (!detail.Photos.Any(p => p.BlobKey == blobKey)) return Results.NotFound();
+
+            var url = await blobStorage.GetPresignedGetUrlAsync(blobKey, TimeSpan.FromMinutes(10), ct);
+            return Results.Redirect(url.ToString());
+        }).WithName("GetSnagPhoto");
 
         return app;
     }

@@ -10,6 +10,7 @@ public sealed class SnagCommentConfiguration : IEntityTypeConfiguration<SnagComm
     {
         builder.ToTable("snag_comments");
         builder.HasKey(c => c.Id);
+        builder.Property(c => c.Id).ValueGeneratedNever();
         builder.Property(c => c.AuthorStaffId).HasMaxLength(50).IsRequired();
         builder.Property(c => c.AuthorName).HasMaxLength(200).IsRequired();
         builder.Property(c => c.Body).HasMaxLength(4000).IsRequired();

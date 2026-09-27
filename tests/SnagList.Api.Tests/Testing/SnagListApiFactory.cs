@@ -63,4 +63,12 @@ public sealed class SnagListApiFactory : WebApplicationFactory<Program>, IAsyncL
         client.DefaultRequestHeaders.Add("X-Test-Roles", string.Join(',', roles));
         return client;
     }
+
+    public HttpClient CreateAuthenticatedClientNoRedirect(string staffId, params string[] roles)
+    {
+        var client = CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        client.DefaultRequestHeaders.Add("X-Test-StaffId", staffId);
+        client.DefaultRequestHeaders.Add("X-Test-Roles", string.Join(',', roles));
+        return client;
+    }
 }
