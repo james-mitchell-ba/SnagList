@@ -1,16 +1,23 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
+@using SnagList.Authorization
+
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
+    <header>
+        <nav>
+            <a href="/">Snags</a>
+            <a href="/locations">Locations</a>
+            <AuthorizeView>
+                <Authorized>
+                    <span>@context.User.GetStaffName() (@string.Join(", ", context.User.GetStaffRoles()))</span>
+                    <a href="authentication/logout">Log out</a>
+                </Authorized>
+                <NotAuthorized>
+                    <a href="authentication/login">Log in</a>
+                </NotAuthorized>
+            </AuthorizeView>
+        </nav>
+    </header>
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
+        @Body
     </main>
 </div>

@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SnagList.Contracts\SnagList.Contracts.csproj" />
+    <ProjectReference Include="..\SnagList.Authorization\SnagList.Authorization.csproj" />
   </ItemGroup>
 
 </Project>
