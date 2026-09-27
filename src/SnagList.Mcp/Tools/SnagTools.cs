@@ -5,6 +5,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using ModelContextProtocol.Server;
 using SnagList.Application.Abstractions;
+using SnagList.Application.Common;
 using SnagList.Application.Snags.Commands;
 using SnagList.Application.Snags.Queries;
 using SnagList.Authorization;
@@ -24,6 +25,7 @@ public sealed class SnagTools(
     AddSnagCommentCommandHandler addCommentHandler,
     UploadSnagPhotoCommandHandler uploadPhotoHandler,
     GetSnagQueryHandler getSnagHandler,
+    ListSnagsQueryHandler listSnagsHandler,
     IBlobStorage blobStorage)
 {
     private ClaimsPrincipal User => httpContextAccessor.HttpContext!.User;
@@ -128,6 +130,25 @@ public sealed class SnagTools(
         using var stream = new MemoryStream(bytes);
         await uploadPhotoHandler.HandleAsync(new UploadSnagPhotoCommand(snagId, fileName, contentType, stream, bytes.Length), ct);
     }
+
+    [McpServerTool(Name = "list_snags")]
+    [Description("Lists Snags with optional filters, cursor-paginated.")]
+    public Task<CursorPage<SnagSummary>> ListSnags(
+        [Description("Only Snags at this Location.")] Guid? locationId,
+        [Description("Only Snags of this category.")] SnagCategory? category,
+        [Description("Only Snags of this severity.")] SnagSeverity? severity,
+        [Description("Only Snags in this status.")] SnagStatus? status,
+        [Description("Opaque cursor from a previous call's nextCursor, or omit for the first page.")] string? cursor,
+        [Description("Max items to return, 1-100. Defaults to 20.")] int limit,
+        CancellationToken ct) =>
+        listSnagsHandler.HandleAsync(
+            new ListSnagsQuery(locationId, category, severity, status, cursor, limit is > 0 and <= 100 ? limit : 20), ct);
+
+    [McpServerTool(Name = "get_snag")]
+    [Description("Gets a single Snag with its comments and photos.")]
+    public async Task<SnagDetail> GetSnag(Guid snagId, CancellationToken ct) =>
+        await getSnagHandler.HandleAsync(new GetSnagQuery(snagId), ct)
+            ?? throw new InvalidOperationException($"Snag {snagId} was not found.");
 
     [McpServerTool(Name = "get_snag_photo")]
     [Description("Returns a short-lived direct download URL for one of a Snag's photos.")]

@@ -133,4 +133,37 @@ public class SnagToolsTests(McpToolsFixture fixture)
 
         Assert.Contains(photoKey, (string)result.Url);
     }
+
+    [Fact]
+    public async Task ListSnags_returns_the_reported_Snag()
+    {
+        var locationId = await CreateLocationAsync();
+        using var reportScope = fixture.CreateScope();
+        dynamic reported = await fixture.CreateTool<SnagTools>(reportScope, "U100057", "Staff")
+            .ReportSnag(locationId, "10th floor", SnagCategory.Other, SnagSeverity.Low, "desc", default);
+        Guid snagId = reported.Id;
+
+        using var scope = fixture.CreateScope();
+        var page = await fixture.CreateTool<SnagTools>(scope, "U100057", "Staff")
+            .ListSnags(null, null, null, null, null, 20, default);
+
+        Assert.Contains(page.Items, s => s.Id == snagId);
+    }
+
+    [Fact]
+    public async Task GetSnag_returns_the_reported_Snag_detail()
+    {
+        var locationId = await CreateLocationAsync();
+        using var reportScope = fixture.CreateScope();
+        dynamic reported = await fixture.CreateTool<SnagTools>(reportScope, "U100058", "Staff")
+            .ReportSnag(locationId, "11th floor", SnagCategory.Other, SnagSeverity.Low, "desc", default);
+        Guid snagId = reported.Id;
+
+        using var scope = fixture.CreateScope();
+        var detail = await fixture.CreateTool<SnagTools>(scope, "U100058", "Staff")
+            .GetSnag(snagId, default);
+
+        Assert.Equal(snagId, detail.Id);
+        Assert.Equal("U100058", detail.ReportedByStaffId);
+    }
 }
