@@ -2,10 +2,32 @@
   "ontologyPath": "docs/ontology.md",
   "namespaceUri": "https://ontology.example/snaglist#",
   "sections": {
-    "required": ["Entities"],
+    "required": ["Entities", "Enums", "Relationships", "Business Rules & Invariants"],
     "optional": ["External Systems", "Subsystems", "Aggregate Roots", "Value Objects", "Domain Events", "Use Cases"]
   },
-  "allowlist": [],
+  "allowlist": [
+    { "term": "IBlobStorage", "reason": "C# port interface name, not a domain concept" },
+    { "term": "IEmailSender", "reason": "C# port interface name, not a domain concept" },
+    { "term": "IClock", "reason": "C# port interface name, not a domain concept" },
+    { "term": "IAuditWriter", "reason": "C# port interface name, not a domain concept" },
+    { "term": "ILocationRepository", "reason": "C# port interface name, not a domain concept" },
+    { "term": "ISnagRepository", "reason": "C# port interface name, not a domain concept" },
+    { "term": "StaffPolicy", "reason": "ASP.NET Core authorization policy name, not a domain concept" },
+    { "term": "MaintenancePolicy", "reason": "ASP.NET Core authorization policy name, not a domain concept" },
+    { "term": "Domain", "reason": "Clean Architecture layer / project name segment (SnagList.Domain), not a domain concept" },
+    { "term": "Application", "reason": "Clean Architecture layer / project name segment (SnagList.Application), not a domain concept" },
+    { "term": "Infrastructure", "reason": "Clean Architecture layer / project name segment (SnagList.Infrastructure), not a domain concept" },
+    { "term": "Api", "reason": "project name segment (SnagList.Api), not a domain concept" },
+    { "term": "Mcp", "reason": "project name segment (SnagList.Mcp), not a domain concept" },
+    { "term": "Web", "reason": "project name segment (SnagList.Web), not a domain concept" },
+    { "term": "ListSnags", "reason": "Application-layer query handler name, not a domain concept" },
+    { "term": "GetSnag", "reason": "Application-layer query handler name, not a domain concept" },
+    { "term": "ListLocations", "reason": "Application-layer query handler name, not a domain concept" },
+    { "term": "GetMe", "reason": "MCP tool / query name mirroring GET /api/v1/me, not a separate domain concept" },
+    { "term": "ApiLink", "reason": "JointBooking's own class name, referenced in the spec for comparison only" },
+    { "term": "StaffCapability", "reason": "JointBooking's own class name, referenced in the spec for comparison only" },
+    { "term": "Admin", "reason": "hypothetical role name discussed and rejected for SnagList during design; not part of the domain" }
+  ],
   "bannedAliases": [],
   "ignorePaths": []
 }

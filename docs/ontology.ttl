@@ -5,8 +5,264 @@
 
 : kit:projectName "SnagList" .
 
-:PropertyIssue a owl:Class ;
+:Location a owl:Class ;
+    rdfs:subClassOf kit:AggregateRoot ;
+    rdfs:label "Location" ;
+    rdfs:comment "A corporate site staff can report a Snag against (e.g. head office, northern office, engineering site). Admin-managed by Maintenance." ;
+    kit:hasProperty "id" ;
+    kit:hasProperty "name" ;
+    kit:hasProperty "address" ;
+    kit:hasProperty "isActive" ;
+    kit:repositoryInterface "ILocationRepository" ;
+    kit:invariant "must not be selectable for a new `Snag` once retired (`isActive = false`); existing `Snag` rows referencing it are unaffected." .
+
+:Snag a owl:Class ;
+    rdfs:subClassOf kit:AggregateRoot ;
+    rdfs:label "Snag" ;
+    rdfs:comment "A staff-reported building quality or maintenance issue at a Location, tracked from report through resolution." ;
+    kit:hasProperty "id" ;
+    kit:hasProperty "locationId" ;
+    kit:hasProperty "subLocation" ;
+    kit:hasProperty "category" ;
+    kit:hasProperty "severity" ;
+    kit:hasProperty "description" ;
+    kit:hasProperty "status" ;
+    kit:hasProperty "reportedByStaffId" ;
+    kit:hasProperty "reportedByName" ;
+    kit:hasProperty "reportedAt" ;
+    kit:hasProperty "version" ;
+    kit:repositoryInterface "ISnagRepository" ;
+    kit:invariant "must not be edited or withdrawn once its `status` leaves `Reported`." ;
+    kit:invariant "`status` moves one-directionally along Reported → Acknowledged → InProgress → Resolved → Closed; `Rejected` is reachable only from `Reported` or `Acknowledged`, `Withdrawn` only from `Reported`; no transition may move backward." ;
+    kit:invariant "may carry at most 5 `SnagPhoto` attachments." .
+
+:SnagComment a owl:Class ;
     rdfs:subClassOf kit:Entity ;
-    rdfs:label "PropertyIssue" ;
-    rdfs:comment "A reported problem with a property — the thing SnagList exists to record, per the README (\"Report Property Issues\"). No code exists yet, so its properties, lifecycle, and relationships are undecided pending the first implementation." ;
-    kit:hasProperty "_(TBD — no fields defined yet)_" .
+    rdfs:label "SnagComment" ;
+    rdfs:comment "A follow-up remark on a Snag, authored by the reporting staff member or Maintenance." ;
+    kit:hasProperty "id" ;
+    kit:hasProperty "snagId" ;
+    kit:hasProperty "authorStaffId" ;
+    kit:hasProperty "authorName" ;
+    kit:hasProperty "body" ;
+    kit:hasProperty "createdAt" .
+
+:StaffIdentity a owl:Class ;
+    rdfs:subClassOf kit:Entity ;
+    rdfs:label "StaffIdentity" ;
+    rdfs:comment "A local mirror of an IdP-authenticated staff member, refreshed on first sight and opportunistically thereafter. Used for display and audit attribution only." ;
+    kit:hasProperty "staffId" ;
+    kit:hasProperty "name" ;
+    kit:hasProperty "email" ;
+    kit:hasProperty "roles" ;
+    kit:hasProperty "firstSeenAt" ;
+    kit:hasProperty "lastSeenAt" ;
+    kit:invariant "is never the source of truth for authorization; every request's `Staff`/`Maintenance` access decision is re-derived from the bearer token's `roles` claim, not from this mirrored row." .
+
+:SnagPhoto a owl:Class ;
+    rdfs:subClassOf kit:ValueObject ;
+    rdfs:label "SnagPhoto" ;
+    rdfs:comment "A photo attached to a Snag at report time, addressed by its blob storage key." ;
+    kit:hasProperty "blobKey" ;
+    kit:hasProperty "fileName" ;
+    kit:hasProperty "contentType" ;
+    kit:hasProperty "sizeBytes" ;
+    kit:hasProperty "uploadedAt" .
+
+:SnagReported a owl:Class ;
+    rdfs:subClassOf kit:DomainEvent ;
+    rdfs:label "SnagReported" ;
+    rdfs:comment "Raised when a staff member first reports a Snag. Drives the maintenance-team notification email." ;
+    kit:hasProperty "snagId" ;
+    kit:hasProperty "locationId" ;
+    kit:hasProperty "severity" ;
+    kit:hasProperty "reportedByStaffId" ;
+    kit:hasProperty "reportedAt" ;
+    kit:raisedBy :Snag .
+
+:SnagStatusChanged a owl:Class ;
+    rdfs:subClassOf kit:DomainEvent ;
+    rdfs:label "SnagStatusChanged" ;
+    rdfs:comment "Raised on every Snag status transition. Drives the reporter notification email and the audit log." ;
+    kit:hasProperty "snagId" ;
+    kit:hasProperty "previousStatus" ;
+    kit:hasProperty "newStatus" ;
+    kit:hasProperty "changedByStaffId" ;
+    kit:hasProperty "changedAt" ;
+    kit:raisedBy :Snag .
+
+:SnagCategory a owl:Class ;
+    rdfs:subClassOf kit:Enum ;
+    rdfs:label "SnagCategory" ;
+    rdfs:comment "The trade or discipline a Snag falls under, set by the reporting staff member." .
+
+:SnagCategory_Electrical a :SnagCategory ;
+    rdfs:label "Electrical" .
+
+:SnagCategory_Plumbing a :SnagCategory ;
+    rdfs:label "Plumbing" .
+
+:SnagCategory_StructuralOrFabric a :SnagCategory ;
+    rdfs:label "StructuralOrFabric" .
+
+:SnagCategory_HeatingAndCooling a :SnagCategory ;
+    rdfs:label "HeatingAndCooling" .
+
+:SnagCategory_CleaningAndHousekeeping a :SnagCategory ;
+    rdfs:label "CleaningAndHousekeeping" .
+
+:SnagCategory_SafetyHazard a :SnagCategory ;
+    rdfs:label "SafetyHazard" .
+
+:SnagCategory_Other a :SnagCategory ;
+    rdfs:label "Other" .
+
+:SnagSeverity a owl:Class ;
+    rdfs:subClassOf kit:Enum ;
+    rdfs:label "SnagSeverity" ;
+    rdfs:comment "Urgency set by the reporting staff member; `SafetyCritical` triggers the same-day maintenance-team notification." .
+
+:SnagSeverity_Low a :SnagSeverity ;
+    rdfs:label "Low" .
+
+:SnagSeverity_Medium a :SnagSeverity ;
+    rdfs:label "Medium" .
+
+:SnagSeverity_High a :SnagSeverity ;
+    rdfs:label "High" .
+
+:SnagSeverity_SafetyCritical a :SnagSeverity ;
+    rdfs:label "SafetyCritical" .
+
+:SnagStatus a owl:Class ;
+    rdfs:subClassOf kit:Enum ;
+    rdfs:label "SnagStatus" ;
+    rdfs:comment "Lifecycle state of a Snag. See the `Snag` invariants for the allowed transition graph." .
+
+:SnagStatus_Reported a :SnagStatus ;
+    rdfs:label "Reported" .
+
+:SnagStatus_Acknowledged a :SnagStatus ;
+    rdfs:label "Acknowledged" .
+
+:SnagStatus_InProgress a :SnagStatus ;
+    rdfs:label "InProgress" .
+
+:SnagStatus_Resolved a :SnagStatus ;
+    rdfs:label "Resolved" .
+
+:SnagStatus_Closed a :SnagStatus ;
+    rdfs:label "Closed" .
+
+:SnagStatus_Rejected a :SnagStatus ;
+    rdfs:label "Rejected" .
+
+:SnagStatus_Withdrawn a :SnagStatus ;
+    rdfs:label "Withdrawn" .
+
+:StaffRole a owl:Class ;
+    rdfs:subClassOf kit:Enum ;
+    rdfs:label "StaffRole" ;
+    rdfs:comment "The IdP-sourced role claim that gates access. Every request's authorization decision is re-derived from this claim, never from the mirrored `StaffIdentity` row." .
+
+:StaffRole_Staff a :StaffRole ;
+    rdfs:label "Staff" .
+
+:StaffRole_Maintenance a :StaffRole ;
+    rdfs:label "Maintenance" .
+
+:ReportSnag a owl:Class ;
+    rdfs:subClassOf kit:UseCase ;
+    rdfs:label "ReportSnag" ;
+    rdfs:comment "A staff member files a new Snag against a Location, with an optional description, photos and severity." ;
+    kit:actor "Staff" .
+
+:EditSnag a owl:Class ;
+    rdfs:subClassOf kit:UseCase ;
+    rdfs:label "EditSnag" ;
+    rdfs:comment "The reporting staff member corrects their own Snag while it is still `Reported`." ;
+    kit:actor "Staff" .
+
+:WithdrawSnag a owl:Class ;
+    rdfs:subClassOf kit:UseCase ;
+    rdfs:label "WithdrawSnag" ;
+    rdfs:comment "The reporting staff member pulls back their own Snag while it is still `Reported`, e.g. a mistaken or duplicate report." ;
+    kit:actor "Staff" .
+
+:AcknowledgeSnag a owl:Class ;
+    rdfs:subClassOf kit:UseCase ;
+    rdfs:label "AcknowledgeSnag" ;
+    rdfs:comment "Maintenance confirms receipt of a `Reported` Snag." ;
+    kit:actor "Maintenance" .
+
+:StartSnagWork a owl:Class ;
+    rdfs:subClassOf kit:UseCase ;
+    rdfs:label "StartSnagWork" ;
+    rdfs:comment "Maintenance marks an `Acknowledged` Snag as `InProgress`." ;
+    kit:actor "Maintenance" .
+
+:ResolveSnag a owl:Class ;
+    rdfs:subClassOf kit:UseCase ;
+    rdfs:label "ResolveSnag" ;
+    rdfs:comment "Maintenance marks an `InProgress` Snag as `Resolved`." ;
+    kit:actor "Maintenance" .
+
+:CloseSnag a owl:Class ;
+    rdfs:subClassOf kit:UseCase ;
+    rdfs:label "CloseSnag" ;
+    rdfs:comment "A `Resolved` Snag is closed out, ending its lifecycle." ;
+    kit:actor "Maintenance" .
+
+:RejectSnag a owl:Class ;
+    rdfs:subClassOf kit:UseCase ;
+    rdfs:label "RejectSnag" ;
+    rdfs:comment "Maintenance marks a `Reported` or `Acknowledged` Snag as invalid or a duplicate, with a reason." ;
+    kit:actor "Maintenance" .
+
+:AddSnagComment a owl:Class ;
+    rdfs:subClassOf kit:UseCase ;
+    rdfs:label "AddSnagComment" ;
+    rdfs:comment "Staff or Maintenance adds a follow-up remark to a Snag, regardless of its current status." ;
+    kit:actor "Staff or Maintenance" .
+
+:CreateLocation a owl:Class ;
+    rdfs:subClassOf kit:UseCase ;
+    rdfs:label "CreateLocation" ;
+    rdfs:comment "Maintenance adds a new corporate site that Snags can be reported against." ;
+    kit:actor "Maintenance" .
+
+:UpdateLocation a owl:Class ;
+    rdfs:subClassOf kit:UseCase ;
+    rdfs:label "UpdateLocation" ;
+    rdfs:comment "Maintenance edits an existing Location's name or address." ;
+    kit:actor "Maintenance" .
+
+:RetireLocation a owl:Class ;
+    rdfs:subClassOf kit:UseCase ;
+    rdfs:label "RetireLocation" ;
+    rdfs:comment "Maintenance marks a Location `isActive = false`, hiding it from the picker for new Snags without deleting history." ;
+    kit:actor "Maintenance" .
+
+:snagLocatedAt a owl:ObjectProperty ;
+    rdfs:domain :Snag ;
+    rdfs:range :Location ;
+    rdfs:label "is reported at" ;
+    kit:cardinality "* → 1" .
+
+:snagHasComment a owl:ObjectProperty ;
+    rdfs:domain :Snag ;
+    rdfs:range :SnagComment ;
+    rdfs:label "has" ;
+    kit:cardinality "1 → *" .
+
+:snagReportedByStaff a owl:ObjectProperty ;
+    rdfs:domain :Snag ;
+    rdfs:range :StaffIdentity ;
+    rdfs:label "is reported by" ;
+    kit:cardinality "* → 1" .
+
+:staffIdentityHoldsRole a owl:ObjectProperty ;
+    rdfs:domain :StaffIdentity ;
+    rdfs:range :StaffRole ;
+    rdfs:label "holds" ;
+    kit:cardinality "* → *" .
