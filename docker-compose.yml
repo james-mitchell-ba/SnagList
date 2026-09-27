@@ -74,6 +74,31 @@ services:
     ports:
       - "5080:8080"
 
+  mcp:
+    build:
+      context: .
+      dockerfile: src/SnagList.Mcp/Dockerfile
+    depends_on:
+      - db
+      - localstack
+      - keycloak
+    environment:
+      ConnectionStrings__SnagList: "Host=db;Database=snaglist;Username=snaglist;Password=snaglist"
+      Storage__BucketName: snaglist-photos
+      Storage__AccessKey: test
+      Storage__SecretKey: test
+      Storage__ServiceUrl: http://localstack:4566
+      Email__Host: mailpit
+      Email__Port: "1025"
+      Email__FromAddress: snaglist@example.com
+      Email__UseTls: "false"
+      Notifications__MaintenanceTeamEmail: maintenance@example.com
+      Auth__Local__Authority: http://keycloak:8080/realms/snaglist
+      Auth__Local__Audience: snaglist-api
+      Auth__Local__AdditionalValidIssuer: http://localhost:8080/realms/snaglist
+    ports:
+      - "5090:8080"
+
   seed:
     build:
       context: .

@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSnagListInfrastructure(builder.Configuration);
 builder.Services.AddSnagListApplicationHandlers();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddKeycloakAuthentication(builder.Configuration);
 builder.Services.AddAuthorizationBuilder()
