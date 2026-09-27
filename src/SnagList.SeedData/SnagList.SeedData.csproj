@@ -1,8 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <ItemGroup>
-    <ProjectReference Include="..\SnagList.Infrastructure\SnagList.Infrastructure.csproj" />
-  </ItemGroup>
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -10,5 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SnagList.Domain\SnagList.Domain.csproj" />
+    <ProjectReference Include="..\SnagList.Infrastructure\SnagList.Infrastructure.csproj" />
+  </ItemGroup>
 
 </Project>
