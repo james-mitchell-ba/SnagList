@@ -1,6 +1,8 @@
 using Amazon.Lambda.AspNetCoreServer.Hosting;
+using Amazon.SecretsManager;
 using SnagList.Api.Auth.EntraId;
 using SnagList.Api.Auth.Local;
+using SnagList.Infrastructure.Configuration;
 using SnagList.Application;
 using SnagList.Authorization;
 using SnagList.Infrastructure;
@@ -9,6 +11,17 @@ using SnagList.Mcp.Tools;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
+if (builder.Configuration["Database:SecretArn"] is { } dbSecretArn)
+{
+    var resolver = new SecretsManagerConnectionStringResolver(new AmazonSecretsManagerClient());
+    var connectionString = await resolver.ResolveConnectionStringAsync(
+        dbSecretArn,
+        builder.Configuration["Database:Host"] ?? throw new InvalidOperationException("Database:Host is required."),
+        int.Parse(builder.Configuration["Database:Port"] ?? "5432"),
+        builder.Configuration["Database:Name"] ?? throw new InvalidOperationException("Database:Name is required."),
+        default);
+    builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?> { ["ConnectionStrings:SnagList"] = connectionString });
+}
 builder.Services.AddSnagListInfrastructure(builder.Configuration);
 builder.Services.AddSnagListApplicationHandlers();
 builder.Services.AddHttpContextAccessor();
@@ -42,6 +55,6 @@ app.UseAuthorization();
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 app.MapMcp("/mcp").RequireAuthorization(PolicyNames.Staff);
 
-app.Run();
+await app.RunAsync();
 
 public partial class Program;

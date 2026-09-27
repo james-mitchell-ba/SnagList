@@ -1,5 +1,6 @@
 using Amazon.Lambda.AspNetCoreServer.Hosting;
 using Amazon.Runtime;
+using Amazon.SecretsManager;
 using Amazon.S3;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -16,6 +17,7 @@ using SnagList.Application.Snags.Commands;
 using SnagList.Application.Snags.Queries;
 using SnagList.Infrastructure.Audit;
 using SnagList.Infrastructure.Clock;
+using SnagList.Infrastructure.Configuration;
 using SnagList.Infrastructure.Email;
 using SnagList.Api.Endpoints;
 using SnagList.Api.Middleware;
@@ -30,6 +32,17 @@ using SnagList.Infrastructure.Storage;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
+if (builder.Configuration["Database:SecretArn"] is { } dbSecretArn)
+{
+    var resolver = new SecretsManagerConnectionStringResolver(new AmazonSecretsManagerClient());
+    var connectionString = await resolver.ResolveConnectionStringAsync(
+        dbSecretArn,
+        builder.Configuration["Database:Host"] ?? throw new InvalidOperationException("Database:Host is required."),
+        int.Parse(builder.Configuration["Database:Port"] ?? "5432"),
+        builder.Configuration["Database:Name"] ?? throw new InvalidOperationException("Database:Name is required."),
+        default);
+    builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?> { ["ConnectionStrings:SnagList"] = connectionString });
+}
 builder.Services.AddSnagListInfrastructure(builder.Configuration);
 
 builder.Services.AddSnagListApplicationHandlers();
@@ -67,6 +80,6 @@ app.MapLocationEndpoints();
 app.MapSnagEndpoints();
 app.MapMeEndpoints();
 
-app.Run();
+await app.RunAsync();
 
 public partial class Program; // exposes the entry point for WebApplicationFactory<Program> in tests
