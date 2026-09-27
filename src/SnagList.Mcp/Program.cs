@@ -2,6 +2,7 @@ using SnagList.Api.Auth.Local;
 using SnagList.Application;
 using SnagList.Authorization;
 using SnagList.Infrastructure;
+using SnagList.Mcp.Tools;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,8 +15,9 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy(PolicyNames.Maintenance, policy => policy.RequireAssertion(ctx => AuthorizationPolicies.IsMaintenance(ctx.User.GetStaffRoles())));
 
 builder.Services.AddMcpServer()
-    .WithHttpTransport(options => options.Stateless = true);
-    // .WithTools<SnagTools>().WithTools<LocationTools>().WithTools<MeTools>() added in Tasks 4-7,
+    .WithHttpTransport(options => options.Stateless = true)
+    .WithTools<SnagTools>();
+    // .WithTools<LocationTools>().WithTools<MeTools>() added in Tasks 6-7,
     // once those classes exist — chaining a tool type that doesn't exist yet won't compile.
 
 var app = builder.Build();
