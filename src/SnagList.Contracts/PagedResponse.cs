@@ -1,3 +1,3 @@
-namespace SnagList.Api.Contracts;
+namespace SnagList.Contracts;
 
 public sealed record PagedResponse<T>(IReadOnlyList<T> Items, string? NextCursor);

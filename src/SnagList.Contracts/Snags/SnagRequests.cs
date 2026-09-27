@@ -1,4 +1,4 @@
-namespace SnagList.Api.Contracts.Snags;
+namespace SnagList.Contracts.Snags;
 
 using SnagList.Domain.Snags;
 

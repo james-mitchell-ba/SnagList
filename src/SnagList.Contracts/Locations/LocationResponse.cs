@@ -1,4 +1,4 @@
-namespace SnagList.Api.Contracts.Locations;
+namespace SnagList.Contracts.Locations;
 
 public sealed class LocationResponse : HypermediaResource
 {

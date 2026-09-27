@@ -4,6 +4,7 @@
     <Project Path="src/SnagList.Api/SnagList.Api.csproj" />
     <Project Path="src/SnagList.Application/SnagList.Application.csproj" />
     <Project Path="src/SnagList.Authorization/SnagList.Authorization.csproj" />
+    <Project Path="src/SnagList.Contracts/SnagList.Contracts.csproj" />
     <Project Path="src/SnagList.Domain/SnagList.Domain.csproj" />
     <Project Path="src/SnagList.Infrastructure/SnagList.Infrastructure.csproj" />
     <Project Path="src/SnagList.Mcp/SnagList.Mcp.csproj" />

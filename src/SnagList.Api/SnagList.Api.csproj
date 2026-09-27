@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SnagList.Application\SnagList.Application.csproj" />
     <ProjectReference Include="..\SnagList.Authorization\SnagList.Authorization.csproj" />
+    <ProjectReference Include="..\SnagList.Contracts\SnagList.Contracts.csproj" />
     <ProjectReference Include="..\SnagList.Infrastructure\SnagList.Infrastructure.csproj" />
     <ProjectReference Include="..\SnagList.Api.Auth.Local\SnagList.Api.Auth.Local.csproj" />
   </ItemGroup>

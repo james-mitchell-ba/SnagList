@@ -2,9 +2,9 @@ namespace SnagList.Api.Tests.Endpoints;
 
 using System.Net;
 using System.Net.Http.Json;
-using SnagList.Api.Contracts;
-using SnagList.Api.Contracts.Locations;
-using SnagList.Api.Contracts.Snags;
+using SnagList.Contracts;
+using SnagList.Contracts.Locations;
+using SnagList.Contracts.Snags;
 using SnagList.Api.Tests.Testing;
 using SnagList.Domain.Snags;
 using Xunit;

@@ -1,7 +1,7 @@
 namespace SnagList.Api.Hypermedia;
 
 using SnagList.Authorization;
-using SnagList.Api.Contracts;
+using SnagList.Contracts;
 using SnagList.Domain.Staff;
 
 public static class LocationLinksBuilder

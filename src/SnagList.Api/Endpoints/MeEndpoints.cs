@@ -1,6 +1,7 @@
 namespace SnagList.Api.Endpoints;
 
 using SnagList.Authorization;
+using SnagList.Contracts;
 using SnagList.Domain.Staff;
 
 public static class MeEndpoints
@@ -14,5 +15,3 @@ public static class MeEndpoints
         return app;
     }
 }
-
-public sealed record MeResponse(string StaffId, string Name, string Email, IReadOnlyList<StaffRole> Roles);

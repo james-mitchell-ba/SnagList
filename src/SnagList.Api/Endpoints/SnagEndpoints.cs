@@ -2,9 +2,9 @@ namespace SnagList.Api.Endpoints;
 
 using Microsoft.AspNetCore.Mvc;
 using SnagList.Authorization;
-using SnagList.Api.Contracts;
+using SnagList.Contracts;
 using SnagList.Application.Abstractions;
-using SnagList.Api.Contracts.Snags;
+using SnagList.Contracts.Snags;
 using SnagList.Api.Hypermedia;
 using SnagList.Application.Snags.Commands;
 using SnagList.Application.Snags.Queries;

@@ -1,4 +1,4 @@
-namespace SnagList.Api.Contracts;
+namespace SnagList.Contracts;
 
 using System.Text.Json.Serialization;
 

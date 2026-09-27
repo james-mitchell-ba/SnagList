@@ -1,6 +1,6 @@
-namespace SnagList.Api.Contracts.Snags;
+namespace SnagList.Contracts.Snags;
 
-using SnagList.Api.Contracts;
+using SnagList.Contracts;
 using SnagList.Domain.Snags;
 
 public sealed class SnagSummaryResponse : HypermediaResource

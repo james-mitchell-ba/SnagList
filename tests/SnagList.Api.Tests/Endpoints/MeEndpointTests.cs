@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SnagList.Api.Endpoints;
 using SnagList.Api.Tests.Testing;
+using SnagList.Contracts;
 using SnagList.Infrastructure.Persistence;
 using Xunit;
 

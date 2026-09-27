@@ -1,6 +1,6 @@
-namespace SnagList.Api.Contracts.Snags;
+namespace SnagList.Contracts.Snags;
 
-using SnagList.Api.Contracts;
+using SnagList.Contracts;
 using SnagList.Domain.Snags;
 
 public sealed record SnagCommentResponse(Guid Id, string AuthorStaffId, string AuthorName, string Body, DateTimeOffset CreatedAt);
