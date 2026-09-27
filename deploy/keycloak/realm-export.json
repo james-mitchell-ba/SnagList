@@ -1,0 +1,84 @@
+{
+  "realm": "snaglist",
+  "enabled": true,
+  "sslRequired": "none",
+  "roles": {
+    "realm": [
+      { "name": "Staff", "description": "Can report and view Snags" },
+      { "name": "Maintenance", "description": "Can triage, resolve, and manage Locations" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "snaglist-api",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "local-dev-secret",
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": ["http://localhost:5080/*"],
+      "webOrigins": ["*"],
+      "protocolMappers": [
+        {
+          "name": "staff-id-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "staff_id",
+            "claim.name": "staff_id",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "audience-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "snaglist-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        },
+        {
+          "name": "realm-roles-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "jane.smith",
+      "enabled": true,
+      "email": "jane.smith@example.com",
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "credentials": [{ "type": "password", "value": "password", "temporary": false }],
+      "attributes": { "staff_id": ["U100001"] },
+      "realmRoles": ["Staff"]
+    },
+    {
+      "username": "bob.maintenance",
+      "enabled": true,
+      "email": "bob.maintenance@example.com",
+      "firstName": "Bob",
+      "lastName": "Maintenance",
+      "credentials": [{ "type": "password", "value": "password", "temporary": false }],
+      "attributes": { "staff_id": ["U900001"] },
+      "realmRoles": ["Staff", "Maintenance"]
+    }
+  ]
+}
