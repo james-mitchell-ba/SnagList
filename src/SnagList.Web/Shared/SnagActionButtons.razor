@@ -1,33 +1,33 @@
 @using global::SnagList.Contracts
 
-<div class="snag-actions">
+<div class="snag-actions d-flex flex-wrap gap-2">
     @if (Links.ContainsKey("edit"))
     {
-        <button id="action-edit" @onclick="OnEdit">Edit</button>
+        <button id="action-edit" class="btn btn-outline-secondary" @onclick="OnEdit">Edit</button>
     }
     @if (Links.ContainsKey("withdraw"))
     {
-        <button id="action-withdraw" @onclick="OnWithdraw">Withdraw</button>
+        <button id="action-withdraw" class="btn btn-outline-danger" @onclick="OnWithdraw">Withdraw</button>
     }
     @if (Links.ContainsKey("acknowledge"))
     {
-        <button id="action-acknowledge" @onclick="OnAcknowledge">Acknowledge</button>
+        <button id="action-acknowledge" class="btn btn-primary" @onclick="OnAcknowledge">Acknowledge</button>
     }
     @if (Links.ContainsKey("start"))
     {
-        <button id="action-start" @onclick="OnStart">Start work</button>
+        <button id="action-start" class="btn btn-primary" @onclick="OnStart">Start work</button>
     }
     @if (Links.ContainsKey("resolve"))
     {
-        <button id="action-resolve" @onclick="OnResolve">Resolve</button>
+        <button id="action-resolve" class="btn btn-success" @onclick="OnResolve">Resolve</button>
     }
     @if (Links.ContainsKey("close"))
     {
-        <button id="action-close" @onclick="OnClose">Close</button>
+        <button id="action-close" class="btn btn-dark" @onclick="OnClose">Close</button>
     }
     @if (Links.ContainsKey("reject"))
     {
-        <button id="action-reject" @onclick="OnReject">Reject</button>
+        <button id="action-reject" class="btn btn-outline-danger" @onclick="OnReject">Reject</button>
     }
 </div>
 

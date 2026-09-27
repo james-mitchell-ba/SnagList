@@ -4,49 +4,51 @@
 @using global::SnagList.Web.Services
 @inject SnagListApiClient Api
 
-<h1>Snags</h1>
+<h1 class="mb-4">Snags</h1>
 
-<div>
-    <select @onchange="OnStatusChanged">
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <select class="form-select w-auto" @onchange="OnStatusChanged">
         <option value="">All statuses</option>
         @foreach (var status in Enum.GetValues<SnagStatus>())
         {
             <option value="@status">@status</option>
         }
     </select>
-    <a href="/report">Report a Snag</a>
+    <a class="btn btn-primary" href="/snags/report">Report a Snag</a>
 </div>
 
 @if (snags is null)
 {
-    <p>Loading…</p>
+    <p class="text-muted">Loading…</p>
 }
 else if (snags.Count == 0)
 {
-    <p>No Snags found.</p>
+    <p class="empty-state">No Snags found.</p>
 }
 else
 {
-    <table>
-        <thead>
-            <tr><th>Sub-location</th><th>Category</th><th>Severity</th><th>Status</th><th></th></tr>
-        </thead>
-        <tbody>
-            @foreach (var snag in snags)
-            {
-                <tr>
-                    <td>@snag.SubLocation</td>
-                    <td>@snag.Category</td>
-                    <td>@snag.Severity</td>
-                    <td>@snag.Status</td>
-                    <td><a href="/snags/@snag.Id">View</a></td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle bg-white">
+            <thead>
+                <tr><th>Sub-location</th><th>Category</th><th>Severity</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+                @foreach (var snag in snags)
+                {
+                    <tr>
+                        <td>@snag.SubLocation</td>
+                        <td>@snag.Category</td>
+                        <td><span class="badge @BadgeStyles.ForSeverity(snag.Severity)">@snag.Severity</span></td>
+                        <td><span class="badge @BadgeStyles.ForStatus(snag.Status)">@snag.Status</span></td>
+                        <td class="text-end"><a href="/snags/@snag.Id">View</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
     @if (nextCursor is not null)
     {
-        <button id="load-more" @onclick="LoadMore">Load more</button>
+        <button id="load-more" class="btn btn-outline-secondary" @onclick="LoadMore">Load more</button>
     }
 }
 

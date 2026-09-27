@@ -7,64 +7,122 @@
 
 @if (_snag is not null)
 {
-    <h1>@_snag.SubLocation</h1>
-    <p>Status: @_snag.Status | Category: @_snag.Category | Severity: @_snag.Severity</p>
-    <p>@_snag.Description</p>
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+        <h1 class="mb-0">@_snag.SubLocation</h1>
+        <span class="badge @BadgeStyles.ForStatus(_snag.Status)">@_snag.Status</span>
+        <span class="badge @BadgeStyles.ForSeverity(_snag.Severity)">@_snag.Severity</span>
+    </div>
+    <p class="text-muted mb-3">Category: @_snag.Category</p>
 
-    <SnagActionButtons Links="_snag.Links"
-        OnEdit="BeginEdit"
-        OnWithdraw="() => TransitionAsync((id, v, ct) => Api.WithdrawSnagAsync(id, v, ct))"
-        OnAcknowledge="() => TransitionAsync(Api.AcknowledgeSnagAsync)"
-        OnStart="() => TransitionAsync(Api.StartSnagWorkAsync)"
-        OnResolve="() => TransitionAsync(Api.ResolveSnagAsync)"
-        OnClose="() => TransitionAsync(Api.CloseSnagAsync)"
-        OnReject="() => _rejecting = true" />
+    <div class="card mb-3">
+        <div class="card-body">
+            <p class="card-text">@_snag.Description</p>
+            <SnagActionButtons Links="_snag.Links"
+                OnEdit="BeginEdit"
+                OnWithdraw="() => TransitionAsync((id, v, ct) => Api.WithdrawSnagAsync(id, v, ct))"
+                OnAcknowledge="() => TransitionAsync(Api.AcknowledgeSnagAsync)"
+                OnStart="() => TransitionAsync(Api.StartSnagWorkAsync)"
+                OnResolve="() => TransitionAsync(Api.ResolveSnagAsync)"
+                OnClose="() => TransitionAsync(Api.CloseSnagAsync)"
+                OnReject="() => _rejecting = true" />
+        </div>
+    </div>
 
     @if (_editing)
     {
-        <EditForm Model="_editModel" OnValidSubmit="EditAsync">
-            <InputText @bind-Value="_editModel.SubLocation" />
-            <select @bind="_editModel.Category">
-                @foreach (var category in Enum.GetValues<SnagCategory>())
-                {
-                    <option value="@category">@category</option>
-                }
-            </select>
-            <select @bind="_editModel.Severity">
-                @foreach (var severity in Enum.GetValues<SnagSeverity>())
-                {
-                    <option value="@severity">@severity</option>
-                }
-            </select>
-            <InputTextArea @bind-Value="_editModel.Description" />
-            <button type="submit">Save</button>
-        </EditForm>
+        <div class="card mb-3">
+            <div class="card-body">
+                <h2 class="h5">Edit Snag</h2>
+                <EditForm Model="_editModel" OnValidSubmit="EditAsync">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Sub-location</label>
+                            <InputText class="form-control" @bind-Value="_editModel.SubLocation" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" @bind="_editModel.Category">
+                                @foreach (var category in Enum.GetValues<SnagCategory>())
+                                {
+                                    <option value="@category">@category</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Severity</label>
+                            <select class="form-select" @bind="_editModel.Severity">
+                                @foreach (var severity in Enum.GetValues<SnagSeverity>())
+                                {
+                                    <option value="@severity">@severity</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <InputTextArea class="form-control" rows="3" @bind-Value="_editModel.Description" />
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">Save</button>
+                </EditForm>
+            </div>
+        </div>
     }
 
     @if (_rejecting)
     {
-        <EditForm Model="_rejectModel" OnValidSubmit="RejectAsync">
-            <InputTextArea @bind-Value="_rejectModel.Reason" placeholder="Reason" />
-            <button type="submit">Confirm reject</button>
-        </EditForm>
+        <div class="card mb-3">
+            <div class="card-body">
+                <h2 class="h5">Reject Snag</h2>
+                <EditForm Model="_rejectModel" OnValidSubmit="RejectAsync">
+                    <InputTextArea class="form-control" rows="2" @bind-Value="_rejectModel.Reason" placeholder="Reason" />
+                    <button type="submit" class="btn btn-danger mt-3">Confirm reject</button>
+                </EditForm>
+            </div>
+        </div>
     }
 
-    <h2>Comments</h2>
-    @foreach (var comment in _snag.Comments)
-    {
-        <p><strong>@comment.AuthorName</strong>: @comment.Body</p>
-    }
-    <EditForm Model="_commentModel" OnValidSubmit="AddCommentAsync">
-        <InputTextArea @bind-Value="_commentModel.Body" />
-        <button type="submit">Add comment</button>
-    </EditForm>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h2 class="h5">Comments</h2>
+            @if (_snag.Comments.Count == 0)
+            {
+                <p class="empty-state mb-3">No comments yet.</p>
+            }
+            else
+            {
+                <ul class="list-unstyled mb-3">
+                    @foreach (var comment in _snag.Comments)
+                    {
+                        <li class="mb-2"><strong>@comment.AuthorName</strong>: @comment.Body</li>
+                    }
+                </ul>
+            }
+            <EditForm Model="_commentModel" OnValidSubmit="AddCommentAsync">
+                <InputTextArea class="form-control" rows="2" @bind-Value="_commentModel.Body" />
+                <button type="submit" class="btn btn-outline-primary mt-2">Add comment</button>
+            </EditForm>
+        </div>
+    </div>
 
-    <h2>Photos</h2>
-    @foreach (var photo in _snag.Photos)
-    {
-        <a href="@photo.Href.Href" target="_blank">@photo.FileName</a>
-    }
-    <InputFile OnChange="UploadPhotoAsync" />
+    <div class="card mb-3">
+        <div class="card-body">
+            <h2 class="h5">Photos</h2>
+            @if (_snag.Photos.Count == 0)
+            {
+                <p class="empty-state mb-3">No photos yet.</p>
+            }
+            else
+            {
+                <ul class="list-unstyled mb-3">
+                    @foreach (var photo in _snag.Photos)
+                    {
+                        <li><a href="@photo.Href.Href" target="_blank">@photo.FileName</a></li>
+                    }
+                </ul>
+            }
+            <InputFile class="form-control" OnChange="UploadPhotoAsync" />
+        </div>
+    </div>
 }
 
 @code {
