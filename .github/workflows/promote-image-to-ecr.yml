@@ -1,0 +1,44 @@
+name: Promote image to ECR
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "GHCR tag to promote (a commit SHA from a previous publish-images.yml run)"
+        required: true
+      aws_region:
+        required: true
+        default: eu-west-1
+
+permissions:
+  contents: read
+  packages: read
+  id-token: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [api, mcp]
+    steps:
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ inputs.aws_region }}
+
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: ecr-login
+
+      - name: Pull from GHCR, tag, and push to ECR
+        run: |
+          docker pull ghcr.io/${{ github.repository_owner }}/snaglist-${{ matrix.service }}:${{ inputs.image_tag }}
+          docker tag ghcr.io/${{ github.repository_owner }}/snaglist-${{ matrix.service }}:${{ inputs.image_tag }} \
+            ${{ steps.ecr-login.outputs.registry }}/snaglist-${{ matrix.service }}:${{ inputs.image_tag }}
+          docker push ${{ steps.ecr-login.outputs.registry }}/snaglist-${{ matrix.service }}:${{ inputs.image_tag }}
