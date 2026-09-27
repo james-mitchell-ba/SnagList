@@ -25,8 +25,9 @@ covers multiple independent subsystems). Each plan produces working, testable so
 1. [implementation-plan-01-core-domain-api.md](implementation-plan-01-core-domain-api.md) — domain
    model, Clean Architecture layering, Postgres persistence, the REST API, Keycloak auth, email
    notifications, and the local docker deployment. **Written.**
-2. MCP server, built against the agent operation catalog this plan's Task 20 produces. *Not yet
-   written.*
+2. [implementation-plan-02-mcp-server.md](implementation-plan-02-mcp-server.md) — MCP server, built
+   against the agent operation catalog Plan 1's Task 20 produces, with a CI-enforced parity test
+   against it. **Written.**
 3. Blazor WASM frontend, consuming the REST API from plan 1. *Not yet written.*
 4. Home-lab deployment (shared Keycloak, per-app MinIO). *Not yet written.*
 5. AWS deployment (Entra ID, S3, Lambda). *Not yet written.*
