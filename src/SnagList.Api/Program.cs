@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using SnagList.Api.Auth.Local;
 using SnagList.Authorization;
 using SnagList.Api.ErrorHandling;
+using SnagList.Application;
 using SnagList.Application.Abstractions;
 using SnagList.Application.Locations.Commands;
 using SnagList.Application.Locations.Queries;
@@ -28,23 +29,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSnagListInfrastructure(builder.Configuration);
 
-builder.Services.AddScoped<CreateLocationCommandHandler>();
-builder.Services.AddScoped<UpdateLocationCommandHandler>();
-builder.Services.AddScoped<RetireLocationCommandHandler>();
-builder.Services.AddScoped<ListLocationsQueryHandler>();
-
-builder.Services.AddScoped<ReportSnagCommandHandler>();
-builder.Services.AddScoped<EditSnagCommandHandler>();
-builder.Services.AddScoped<WithdrawSnagCommandHandler>();
-builder.Services.AddScoped<ListSnagsQueryHandler>();
-builder.Services.AddScoped<GetSnagQueryHandler>();
-
-builder.Services.AddScoped<ChangeSnagStatusCommandHandler>();
-builder.Services.AddScoped<RejectSnagCommandHandler>();
-builder.Services.AddScoped<AddSnagCommentCommandHandler>();
-builder.Services.AddScoped<UploadSnagPhotoCommandHandler>();
-
-builder.Services.AddScoped<SyncStaffIdentityCommandHandler>();
+builder.Services.AddSnagListApplicationHandlers();
 
 builder.Services.AddKeycloakAuthentication(builder.Configuration);
 builder.Services.AddAuthorizationBuilder()

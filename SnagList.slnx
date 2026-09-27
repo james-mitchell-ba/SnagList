@@ -6,6 +6,7 @@
     <Project Path="src/SnagList.Authorization/SnagList.Authorization.csproj" />
     <Project Path="src/SnagList.Domain/SnagList.Domain.csproj" />
     <Project Path="src/SnagList.Infrastructure/SnagList.Infrastructure.csproj" />
+    <Project Path="src/SnagList.Mcp/SnagList.Mcp.csproj" />
     <Project Path="src/SnagList.SeedData/SnagList.SeedData.csproj" />
   </Folder>
   <Folder Name="/tests/">
@@ -14,6 +15,7 @@
     <Project Path="tests/SnagList.Authorization.Tests/SnagList.Authorization.Tests.csproj" />
     <Project Path="tests/SnagList.Domain.Tests/SnagList.Domain.Tests.csproj" />
     <Project Path="tests/SnagList.Infrastructure.Tests/SnagList.Infrastructure.Tests.csproj" />
+    <Project Path="tests/SnagList.Mcp.Tests/SnagList.Mcp.Tests.csproj" />
     <Project Path="tests/SnagList.SeedData.Tests/SnagList.SeedData.Tests.csproj" />
   </Folder>
 </Solution>
