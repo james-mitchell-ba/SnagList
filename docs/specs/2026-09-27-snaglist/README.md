@@ -28,7 +28,9 @@ covers multiple independent subsystems). Each plan produces working, testable so
 2. [implementation-plan-02-mcp-server.md](implementation-plan-02-mcp-server.md) — MCP server, built
    against the agent operation catalog Plan 1's Task 20 produces, with a CI-enforced parity test
    against it. **Written.**
-3. Blazor WASM frontend, consuming the REST API from plan 1. *Not yet written.*
+3. [implementation-plan-03-blazor-web.md](implementation-plan-03-blazor-web.md) — Blazor WASM
+   frontend, authenticated via OIDC against Keycloak, with a hypermedia-driven action-button
+   component that renders purely from each response's `_links`. **Written.**
 4. Home-lab deployment (shared Keycloak, per-app MinIO). *Not yet written.*
 5. AWS deployment (Entra ID, S3, Lambda). *Not yet written.*
 
