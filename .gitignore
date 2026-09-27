@@ -8,4 +8,4 @@ deploy/home-lab/.env
 terraform.tfstate
 terraform.tfstate.backup
 *.tfvars
-!example.tfvars
+!**/example.tfvars

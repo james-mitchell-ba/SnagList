@@ -1,0 +1,39 @@
+name: Deploy web static site
+
+on:
+  workflow_dispatch:
+    inputs:
+      aws_region:
+        required: true
+        default: eu-west-1
+      s3_bucket:
+        description: "Terraform output web_bucket_name"
+        required: true
+      cloudfront_distribution_id:
+        description: "Terraform output web_cloudfront_distribution_id"
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - run: dotnet publish src/SnagList.Web/SnagList.Web.csproj -c Release -o publish-output
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ inputs.aws_region }}
+
+      - run: aws s3 sync publish-output/wwwroot s3://${{ inputs.s3_bucket }} --delete
+
+      - run: aws cloudfront create-invalidation --distribution-id ${{ inputs.cloudfront_distribution_id }} --paths "/*"
