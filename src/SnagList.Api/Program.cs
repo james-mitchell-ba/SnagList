@@ -1,3 +1,4 @@
+using Amazon.Lambda.AspNetCoreServer.Hosting;
 using Amazon.Runtime;
 using Amazon.S3;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +28,7 @@ using SnagList.Infrastructure.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 builder.Services.AddSnagListInfrastructure(builder.Configuration);
 
 builder.Services.AddSnagListApplicationHandlers();

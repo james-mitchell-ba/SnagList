@@ -1,3 +1,4 @@
+using Amazon.Lambda.AspNetCoreServer.Hosting;
 using SnagList.Api.Auth.Local;
 using SnagList.Application;
 using SnagList.Authorization;
@@ -6,6 +7,7 @@ using SnagList.Mcp.Tools;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 builder.Services.AddSnagListInfrastructure(builder.Configuration);
 builder.Services.AddSnagListApplicationHandlers();
 builder.Services.AddHttpContextAccessor();
