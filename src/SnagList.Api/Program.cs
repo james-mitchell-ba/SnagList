@@ -17,6 +17,7 @@ using SnagList.Infrastructure.Email;
 using SnagList.Api.Endpoints;
 using SnagList.Api.Middleware;
 using SnagList.Api.OpenApi;
+using SnagList.Infrastructure;
 using SnagList.Application.Staff.Commands;
 using SnagList.Infrastructure.Persistence;
 using SnagList.Infrastructure.Persistence.Queries;
@@ -25,17 +26,7 @@ using SnagList.Infrastructure.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<SnagListDbContext>(options => options.UseNpgsql(
-    builder.Configuration.GetConnectionString("SnagList")
-        ?? throw new InvalidOperationException("Connection string 'SnagList' is required.")));
-
-builder.Services.AddScoped<ILocationRepository, EfLocationRepository>();
-builder.Services.AddScoped<ISnagRepository, EfSnagRepository>();
-builder.Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
-builder.Services.AddScoped<ILocationQueries, EfLocationQueries>();
-builder.Services.AddScoped<ISnagQueries, EfSnagQueries>();
-builder.Services.AddScoped<IAuditWriter, EfAuditWriter>();
-builder.Services.AddSingleton<IClock, SystemClock>();
+builder.Services.AddSnagListInfrastructure(builder.Configuration);
 
 builder.Services.AddScoped<CreateLocationCommandHandler>();
 builder.Services.AddScoped<UpdateLocationCommandHandler>();
@@ -53,28 +44,7 @@ builder.Services.AddScoped<RejectSnagCommandHandler>();
 builder.Services.AddScoped<AddSnagCommentCommandHandler>();
 builder.Services.AddScoped<UploadSnagPhotoCommandHandler>();
 
-builder.Services.AddScoped<IStaffIdentityRepository, EfStaffIdentityRepository>();
 builder.Services.AddScoped<SyncStaffIdentityCommandHandler>();
-builder.Services.Configure<NotificationOptions>(builder.Configuration.GetSection("Notifications"));
-builder.Services.AddScoped(sp => sp.GetRequiredService<IOptions<NotificationOptions>>().Value);
-builder.Services.AddScoped<SnagNotificationDispatcher>();
-
-var storage = builder.Configuration.GetSection("Storage");
-var storageBucket = storage["BucketName"] ?? throw new InvalidOperationException("Storage:BucketName is required.");
-builder.Services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client(
-    new BasicAWSCredentials(
-        storage["AccessKey"] ?? throw new InvalidOperationException("Storage:AccessKey is required."),
-        storage["SecretKey"] ?? throw new InvalidOperationException("Storage:SecretKey is required.")),
-    new AmazonS3Config
-    {
-        ServiceURL = storage["ServiceUrl"] ?? throw new InvalidOperationException("Storage:ServiceUrl is required."),
-        ForcePathStyle = true,
-    }));
-builder.Services.AddSingleton<IBlobStorage>(sp => new S3CompatibleBlobStorage(sp.GetRequiredService<IAmazonS3>(), storageBucket));
-
-builder.Services.Configure<SmtpEmailSenderOptions>(builder.Configuration.GetSection("Email"));
-builder.Services.AddSingleton<IEmailSender>(sp =>
-    new SmtpEmailSender(sp.GetRequiredService<IOptions<SmtpEmailSenderOptions>>().Value));
 
 builder.Services.AddKeycloakAuthentication(builder.Configuration);
 builder.Services.AddAuthorizationBuilder()
