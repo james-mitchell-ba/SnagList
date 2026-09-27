@@ -1,0 +1,68 @@
+name: Build and test
+
+on:
+  # Feature-branch commits are validated through their pull request, not through `push`, so an
+  # open PR does not build every commit twice. A branch with no pull request is validated as soon
+  # as one is opened, before it can merge.
+  #
+  # paths-ignore skips the whole workflow when every changed file is docs/spec/narrative — none of
+  # those paths feed `dotnet build`/`dotnet test`. Safe only because `build` is not a required
+  # status check on `main`: a required check that never runs leaves a pull request pending
+  # forever. Check the branch's protection rules before path-filtering any workflow whose job
+  # name appears in `required_status_checks`.
+  push:
+    branches: [main]
+    paths-ignore: &docs_spec_paths
+      - "**/*.md"
+      - "docs/**"
+      - "narrative/**"
+      - ".cursor/**"
+      - ".windsurf/**"
+      - ".clinerules/**"
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+    paths-ignore: *docs_spec_paths
+
+# Only the newest commit on a ref needs a green build; cancel the runs it superseded.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Opt-out valve for build-irrelevant PRs that still touch a build path (for example a
+    # workflow-only change): apply the `no-build-check` label and this job reports "skipped".
+    # Push-triggered runs are never skipped by this condition — only pull_request runs carry
+    # label context.
+    if: "!contains(github.event.pull_request.labels.*.name, 'no-build-check')"
+    steps:
+      - uses: actions/checkout@v4
+
+      # The repository has no .NET solution yet; report success rather than failing every run
+      # until the first one lands.
+      - name: Find solutions
+        id: solutions
+        run: |
+          SOLUTIONS=$(git ls-files '*.sln' '*.slnx' | tr '\n' ' ')
+          echo "found=$SOLUTIONS" >> "$GITHUB_OUTPUT"
+          if [ -z "$SOLUTIONS" ]; then echo "No solution file in the repository; nothing to build."; fi
+
+      - uses: actions/setup-dotnet@v4
+        if: steps.solutions.outputs.found != ''
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore, build and test
+        if: steps.solutions.outputs.found != ''
+        env:
+          SOLUTIONS: ${{ steps.solutions.outputs.found }}
+        run: |
+          for sln in $SOLUTIONS; do
+            dotnet restore "$sln"
+            dotnet build "$sln" --no-restore --configuration Release
+            dotnet test "$sln" --no-build --configuration Release --verbosity normal
+          done
