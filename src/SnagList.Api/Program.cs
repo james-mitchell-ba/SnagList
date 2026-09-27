@@ -14,6 +14,9 @@ using SnagList.Infrastructure.Audit;
 using SnagList.Infrastructure.Clock;
 using SnagList.Infrastructure.Email;
 using SnagList.Api.Endpoints;
+using SnagList.Api.Middleware;
+using SnagList.Api.OpenApi;
+using SnagList.Application.Staff.Commands;
 using SnagList.Infrastructure.Persistence;
 using SnagList.Infrastructure.Persistence.Queries;
 using SnagList.Infrastructure.Persistence.Repositories;
@@ -49,6 +52,9 @@ builder.Services.AddScoped<RejectSnagCommandHandler>();
 builder.Services.AddScoped<AddSnagCommentCommandHandler>();
 builder.Services.AddScoped<UploadSnagPhotoCommandHandler>();
 
+builder.Services.AddScoped<IStaffIdentityRepository, EfStaffIdentityRepository>();
+builder.Services.AddScoped<SyncStaffIdentityCommandHandler>();
+
 var storage = builder.Configuration.GetSection("Storage");
 var storageBucket = storage["BucketName"] ?? throw new InvalidOperationException("Storage:BucketName is required.");
 builder.Services.AddSingleton<IAmazonS3>(_ => new AmazonS3Client(
@@ -73,19 +79,21 @@ builder.Services.AddAuthorizationBuilder()
 
 builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();
 builder.Services.AddProblemDetails();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options => options.AddDocumentTransformer<AgentHintsDocumentTransformer>());
 
 var app = builder.Build();
 
 app.UseExceptionHandler();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<StaffIdentitySyncMiddleware>();
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 app.MapOpenApi("/openapi/v1.json");
 
 app.MapLocationEndpoints();
 app.MapSnagEndpoints();
+app.MapMeEndpoints();
 
 app.Run();
 
