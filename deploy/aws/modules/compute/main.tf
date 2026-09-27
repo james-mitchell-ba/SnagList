@@ -40,8 +40,8 @@ resource "aws_iam_role_policy" "github_actions_ecr_push" {
     Statement = [
       { Effect = "Allow", Action = "ecr:GetAuthorizationToken", Resource = "*" },
       {
-        Effect = "Allow"
-        Action = ["ecr:BatchCheckLayerAvailability", "ecr:PutImage", "ecr:InitiateLayerUpload", "ecr:UploadLayerPart", "ecr:CompleteLayerUpload"]
+        Effect   = "Allow"
+        Action   = ["ecr:BatchCheckLayerAvailability", "ecr:PutImage", "ecr:InitiateLayerUpload", "ecr:UploadLayerPart", "ecr:CompleteLayerUpload"]
         Resource = [aws_ecr_repository.api.arn, aws_ecr_repository.mcp.arn]
       },
     ]
@@ -51,7 +51,7 @@ resource "aws_iam_role_policy" "github_actions_ecr_push" {
 resource "aws_iam_role" "lambda_execution" {
   name = "${var.name_prefix}-lambda-execution"
   assume_role_policy = jsonencode({
-    Version = "2012-10-17"
+    Version   = "2012-10-17"
     Statement = [{ Effect = "Allow", Principal = { Service = "lambda.amazonaws.com" }, Action = "sts:AssumeRole" }]
   })
 }

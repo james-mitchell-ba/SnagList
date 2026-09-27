@@ -4,9 +4,9 @@ output "lambda_config_access_policy_json" {
 
 output "ssm_parameter_names" {
   value = {
-    storage_bucket_name              = aws_ssm_parameter.storage_bucket_name.name
-    notifications_maintenance_email  = aws_ssm_parameter.notifications_maintenance_email.name
-    auth_entraid_tenant_id           = aws_ssm_parameter.auth_entraid_tenant_id.name
-    auth_entraid_audience            = aws_ssm_parameter.auth_entraid_audience.name
+    storage_bucket_name             = aws_ssm_parameter.storage_bucket_name.name
+    notifications_maintenance_email = aws_ssm_parameter.notifications_maintenance_email.name
+    auth_entraid_tenant_id          = aws_ssm_parameter.auth_entraid_tenant_id.name
+    auth_entraid_audience           = aws_ssm_parameter.auth_entraid_audience.name
   }
 }

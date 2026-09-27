@@ -20,11 +20,11 @@ module "networking" {
 }
 
 module "database" {
-  source                      = "./modules/database"
-  name_prefix                 = var.name_prefix
-  private_subnet_ids          = module.networking.private_subnet_ids
-  database_security_group_id  = module.networking.database_security_group_id
-  deletion_protection         = var.deletion_protection
+  source                     = "./modules/database"
+  name_prefix                = var.name_prefix
+  private_subnet_ids         = module.networking.private_subnet_ids
+  database_security_group_id = module.networking.database_security_group_id
+  deletion_protection        = var.deletion_protection
 }
 
 resource "aws_s3_bucket" "photos" {
@@ -62,23 +62,23 @@ module "config" {
 }
 
 module "compute" {
-  source                            = "./modules/compute"
-  name_prefix                       = var.name_prefix
-  github_repository                 = var.github_repository
-  image_tag                         = var.image_tag
-  private_subnet_ids                = module.networking.private_subnet_ids
-  lambda_security_group_id          = module.networking.lambda_security_group_id
-  db_app_secret_arn                 = module.database.app_secret_arn
-  db_address                        = module.database.address
-  db_name                           = module.database.db_name
-  photos_bucket_arn                 = aws_s3_bucket.photos.arn
-  photos_bucket_name                = aws_s3_bucket.photos.bucket
-  email_from_address                = var.email_from_address
-  maintenance_team_email            = var.maintenance_team_email
-  entra_tenant_id                   = var.entra_tenant_id
-  entra_audience                    = var.entra_audience
-  lambda_config_access_policy_json  = module.config.lambda_config_access_policy_json
-  lambda_ses_send_policy_json       = module.email.lambda_ses_send_policy_json
+  source                           = "./modules/compute"
+  name_prefix                      = var.name_prefix
+  github_repository                = var.github_repository
+  image_tag                        = var.image_tag
+  private_subnet_ids               = module.networking.private_subnet_ids
+  lambda_security_group_id         = module.networking.lambda_security_group_id
+  db_app_secret_arn                = module.database.app_secret_arn
+  db_address                       = module.database.address
+  db_name                          = module.database.db_name
+  photos_bucket_arn                = aws_s3_bucket.photos.arn
+  photos_bucket_name               = aws_s3_bucket.photos.bucket
+  email_from_address               = var.email_from_address
+  maintenance_team_email           = var.maintenance_team_email
+  entra_tenant_id                  = var.entra_tenant_id
+  entra_audience                   = var.entra_audience
+  lambda_config_access_policy_json = module.config.lambda_config_access_policy_json
+  lambda_ses_send_policy_json      = module.email.lambda_ses_send_policy_json
 }
 
 module "static_site" {
