@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\SnagList.Application\SnagList.Application.csproj" />
+    <ProjectReference Include="..\SnagList.Infrastructure\SnagList.Infrastructure.csproj" />
+    <ProjectReference Include="..\SnagList.Api.Auth.Local\SnagList.Api.Auth.Local.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>
