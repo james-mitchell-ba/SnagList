@@ -5,6 +5,7 @@
     <ProjectReference Include="..\SnagList.Infrastructure\SnagList.Infrastructure.csproj" />
     <ProjectReference Include="..\SnagList.Authorization\SnagList.Authorization.csproj" />
     <ProjectReference Include="..\SnagList.Api.Auth.Local\SnagList.Api.Auth.Local.csproj" />
+    <ProjectReference Include="..\SnagList.Api.Auth.EntraId\SnagList.Api.Auth.EntraId.csproj" />
   </ItemGroup>
 
   <ItemGroup>

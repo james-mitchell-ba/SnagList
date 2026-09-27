@@ -1,4 +1,5 @@
 using Amazon.Lambda.AspNetCoreServer.Hosting;
+using SnagList.Api.Auth.EntraId;
 using SnagList.Api.Auth.Local;
 using SnagList.Application;
 using SnagList.Authorization;
@@ -12,7 +13,17 @@ builder.Services.AddSnagListInfrastructure(builder.Configuration);
 builder.Services.AddSnagListApplicationHandlers();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddKeycloakAuthentication(builder.Configuration);
+switch (builder.Configuration["Auth:Provider"] ?? "Local")
+{
+    case "Local":
+        builder.Services.AddKeycloakAuthentication(builder.Configuration);
+        break;
+    case "EntraId":
+        builder.Services.AddEntraIdAuthentication(builder.Configuration);
+        break;
+    default:
+        throw new InvalidOperationException($"Unknown Auth:Provider '{builder.Configuration["Auth:Provider"]}'.");
+}
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy(PolicyNames.Staff, policy => policy.RequireAssertion(ctx => AuthorizationPolicies.IsStaff(ctx.User.GetStaffRoles())))
     .AddPolicy(PolicyNames.Maintenance, policy => policy.RequireAssertion(ctx => AuthorizationPolicies.IsMaintenance(ctx.User.GetStaffRoles())));
