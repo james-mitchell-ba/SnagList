@@ -16,9 +16,9 @@ builder.Services.AddAuthorizationBuilder()
 
 builder.Services.AddMcpServer()
     .WithHttpTransport(options => options.Stateless = true)
-    .WithTools<SnagTools>();
-    // .WithTools<LocationTools>().WithTools<MeTools>() added in Tasks 6-7,
-    // once those classes exist — chaining a tool type that doesn't exist yet won't compile.
+    .WithTools<SnagTools>()
+    .WithTools<LocationTools>()
+    .WithTools<MeTools>();
 
 var app = builder.Build();
 
