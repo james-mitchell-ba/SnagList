@@ -7,11 +7,17 @@ using SnagList.Infrastructure.Persistence;
 
 public static class SeedRunner
 {
-    public static async Task RunAsync(SnagListDbContext dbContext, TextWriter output)
+    public static async Task RunAsync(SnagListDbContext dbContext, TextWriter output, bool reseed = false)
     {
         await dbContext.Database.MigrateAsync();
 
-        if (await dbContext.Locations.AnyAsync())
+        if (reseed)
+        {
+            output.WriteLine("Reseeding: wiping existing data...");
+            await dbContext.Database.ExecuteSqlRawAsync(
+                "TRUNCATE TABLE snag_comments, snag_photos, snags, locations, audit_log_entries RESTART IDENTITY CASCADE");
+        }
+        else if (await dbContext.Locations.AnyAsync())
         {
             output.WriteLine("Demo data already present; skipping seed.");
             return;

@@ -26,4 +26,20 @@ public class SeedRunnerTests(PostgresFixture fixture) : IClassFixture<PostgresFi
 
         Assert.Equal(3, await secondRun.Locations.CountAsync());
     }
+
+    [Fact]
+    public async Task RunAsync_with_reseed_wipes_existing_data_before_reseeding()
+    {
+        await using (var firstRun = fixture.CreateContext()) await SeedRunner.RunAsync(firstRun, TextWriter.Null);
+        await using var firstRunReadContext = fixture.CreateContext();
+        var firstLocationId = (await firstRunReadContext.Locations.FirstAsync()).Id;
+
+        await using var reseedContext = fixture.CreateContext();
+        await SeedRunner.RunAsync(reseedContext, TextWriter.Null, reseed: true);
+
+        await using var afterReseed = fixture.CreateContext();
+        Assert.Equal(3, await afterReseed.Locations.CountAsync());
+        // A genuinely fresh set of rows, not the same ones re-detected as "already present."
+        Assert.DoesNotContain(await afterReseed.Locations.Select(l => l.Id).ToListAsync(), id => id == firstLocationId);
+    }
 }
