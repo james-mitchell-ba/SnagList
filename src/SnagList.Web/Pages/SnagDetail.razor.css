@@ -1,0 +1,9 @@
+.camera-photo-upload {
+    display: none;
+}
+
+@media (any-pointer: coarse) {
+    .camera-photo-upload {
+        display: block;
+    }
+}
