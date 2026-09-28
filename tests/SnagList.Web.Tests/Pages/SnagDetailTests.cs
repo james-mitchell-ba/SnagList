@@ -44,6 +44,26 @@ public class SnagDetailTests : TestContext
     }
 
     [Fact]
+    public void Photo_actions_show_distinct_button_text_instead_of_native_file_picker_text()
+    {
+        var snagId = Guid.NewGuid();
+        var handler = new FakeHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK) { Content = JsonContent.Create(Detail(snagId, new Dictionary<string, ApiLink>())) });
+        Services.AddSingleton(new SnagListApiClient(new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") }));
+
+        var component = RenderComponent<global::SnagList.Web.Pages.SnagDetail>(p => p.Add(x => x.SnagId, snagId));
+
+        var uploadLabel = component.Find("label[for='photo-upload']");
+        var cameraLabel = component.Find("label[for='photo-camera']");
+        Assert.Equal("Upload a photo", uploadLabel.TextContent.Trim());
+        Assert.Equal("Take a photo", cameraLabel.TextContent.Trim());
+        Assert.Contains("btn", uploadLabel.ClassList);
+        Assert.Contains("btn", cameraLabel.ClassList);
+        Assert.Contains("visually-hidden", component.Find("#photo-upload").ClassList);
+        Assert.Contains("visually-hidden", component.Find("#photo-camera").ClassList);
+    }
+
+    [Fact]
     public void Camera_photo_uses_the_existing_upload_and_reloads_the_Snag()
     {
         var snagId = Guid.NewGuid();

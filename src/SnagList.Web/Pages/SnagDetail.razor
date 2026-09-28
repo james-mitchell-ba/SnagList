@@ -120,13 +120,13 @@
                     }
                 </ul>
             }
-            <div class="mb-3">
-                <label class="form-label" for="photo-upload">Upload a photo</label>
-                <InputFile id="photo-upload" class="form-control" OnChange="UploadPhotoAsync" />
+            <div class="photo-action-field mb-2">
+                <InputFile id="photo-upload" class="visually-hidden" OnChange="UploadPhotoAsync" />
+                <label class="btn btn-outline-primary" for="photo-upload">Upload a photo</label>
             </div>
-            <div class="camera-photo-upload">
-                <label class="form-label" for="photo-camera">Take a photo</label>
-                <InputFile id="photo-camera" class="form-control" accept="image/*" capture="environment" OnChange="UploadPhotoAsync" />
+            <div class="photo-action-field camera-photo-upload">
+                <InputFile id="photo-camera" class="visually-hidden" accept="image/*" capture="environment" OnChange="UploadPhotoAsync" />
+                <label class="btn btn-primary" for="photo-camera">Take a photo</label>
             </div>
         </div>
     </div>
