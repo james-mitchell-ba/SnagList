@@ -51,6 +51,16 @@ status and the actions available to you. As the reporter, you can **Edit** or
 
 ![Snag detail page as Staff, showing Edit and Withdraw](images/05-snag-detail-staff.png)
 
+## Adding a photo
+
+Open a `Snag` and scroll to **Photos**. On a mobile device with a camera, choose
+**Take a photo**, allow camera access if your browser asks, then take and confirm
+the picture. The camera picker prefers the rear camera when one is available.
+Once the upload finishes, the picture appears in the Photos list. To select an
+existing picture or another file, use **Upload a photo** instead.
+
+![Photos section in the mobile layout, showing Upload a photo and Take a photo](images/13-snag-camera-option.png)
+
 ## Adding a comment
 
 Anyone — Staff or Maintenance — can add a follow-up comment to a `Snag`,

@@ -120,7 +120,14 @@
                     }
                 </ul>
             }
-            <InputFile class="form-control" OnChange="UploadPhotoAsync" />
+            <div class="photo-action-field mb-2">
+                <InputFile id="photo-upload" class="visually-hidden" OnChange="UploadPhotoAsync" />
+                <label class="btn btn-outline-primary" for="photo-upload">Upload a photo</label>
+            </div>
+            <div class="photo-action-field camera-photo-upload">
+                <InputFile id="photo-camera" class="visually-hidden" accept="image/*" capture="environment" OnChange="UploadPhotoAsync" />
+                <label class="btn btn-primary" for="photo-camera">Take a photo</label>
+            </div>
         </div>
     </div>
 }
