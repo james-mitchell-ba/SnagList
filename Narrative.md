@@ -12,6 +12,7 @@ This document records what was asked, what was decided, why, and what followed.
 | [2](#entry-feat-deploy-use-minio-for-s3-compatible-storage-in-the-home-lab-stack) | 2026-09-27 | feat(deploy): use MinIO for S3-compatible storage in the home-lab stack | product | Kept MinIO as the target (per spec) but build it and `mc` from source in-repo (`deploy/home-lab/minio/Dockerfile`, `mc.Dockerfile`) rather than pulling pre-built images, verified by actually building and running both here. |
 | [3](#entry-fix-deploy-use-minio-instead-of-localstack-for-local-docker-storage) | 2026-09-27 | fix(deploy): use MinIO instead of LocalStack for local docker storage | product | Apply the same decision already made for home-lab (MinIO built from source in `deploy/home-lab/minio/`) to local docker as well, reusing the same Dockerfiles rather than duplicating them, so local docker and home-lab stay in the same… |
 | [4](#entry-fix-local-docker-wire-up-auth-end-to-end-add-user-guide-with-screenshots) | 2026-09-27 | fix(local-docker): wire up auth end-to-end, add user guide with screenshots | product | Fixed each gap at the layer it belongs to rather than working around it in the app: added the missing script tag Blazor's own tooling expects, moved the custom claim mappers to the shared client scope so they reach every client that… |
+| [5](#entry-feat-web-offer-mobile-camera-capture-for-snag-photos) | 2026-09-28 | feat(web): offer mobile camera capture for snag photos | product | Offer separate upload and camera actions, each with text that names the action. |
 
 ---
 
@@ -184,3 +185,27 @@ into this fix.
 AI-Fingerprint: sha256:9315bb3cbd3f
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+---
+
+<a id="entry-feat-web-offer-mobile-camera-capture-for-snag-photos"></a>
+
+## Entry 5 — 2026-09-28 — feat(web): offer mobile camera capture for snag photos
+
+*Kind: product. Status: accepted.*
+
+## Context
+
+Staff may report a Snag while standing at the affected Location. The detail page offered only a file picker for adding photos, making a fresh mobile photo less direct.
+
+## Decision
+
+Offer separate upload and camera actions, each with text that names the action. Show the camera action on devices with a coarse touch pointer, keep the file picker as an upload option, and reuse the existing photo upload handler and endpoint. Use native browser capture with a rear camera preference.
+
+## Consequences
+
+Mobile users can take and upload a photo in the same flow as a selected file. Camera availability and the capture experience remain browser controlled; the upload option remains available as a fallback. No API or domain model changes are needed.
+
+---
+
+AI-Fingerprint: sha256:889048e3bbcd
