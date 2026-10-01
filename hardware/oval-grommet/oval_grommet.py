@@ -3,14 +3,18 @@ import cadquery as cq
 DENSITY_G_CM3 = 8.0  # 316L stainless
 FABRIC = 1.0
 HOLE_L, HOLE_W = 70.0, 25.0
-MARGIN = 8.0
+MARGIN = 10.0
 A_T, B_T = 2.0, 1.5
 GASKET_T = 1.0
 WALL = 1.2
 CLEAR = 0.2
 TUBE_H = FABRIC + GASKET_T + B_T - 0.2
-SCREW_D = 3.2
-SCREWS = [(40.5, 0), (-40.5, 0), (20, 18), (-20, 18), (20, -18), (-20, -18)]
+SCREW_D = 5.2
+PITCH_OFF = 6.3
+SX, SY = HOLE_L / 2 + PITCH_OFF, HOLE_W / 2 + PITCH_OFF
+SCREWS = [(SX, 0), (-SX, 0), (20, SY), (-20, SY), (20, -SY), (-20, -SY)]
+BARREL_D, BARREL_HEAD_D, HEAD_T = 5.0, 6.5, 1.0
+M_D = 3.0
 
 
 def stadium(l, w, z0, h):
@@ -39,12 +43,25 @@ g = g.cut(stadium(tube_l + 0.1, tube_w + 0.1, -1, GASKET_T + 2))
 g = g.cut(cq.Workplane("XY").pushPoints(SCREWS).circle(SCREW_D / 2).extrude(GASKET_T + 1).translate((0, 0, -0.5)))
 g_pos = g.translate((0, 0, A_T + FABRIC))
 
+STACK = A_T + FABRIC + GASKET_T + B_T
+barrel = (cq.Workplane("XY").workplane(offset=-HEAD_T).circle(BARREL_HEAD_D / 2).extrude(HEAD_T)
+          .faces(">Z").workplane().circle(BARREL_D / 2).extrude(STACK)
+          .faces(">Z").workplane().hole(M_D, STACK - 0.5))
+screw = (cq.Workplane("XY").workplane(offset=0.5).circle(M_D / 2).extrude(STACK - 0.5)
+         .faces(">Z").workplane().circle(BARREL_HEAD_D / 2).extrude(HEAD_T)
+         .faces(">Z").workplane().rect(0.8, 3.0).cutBlind(-0.6))
+
 asm = cq.Assembly().add(a, name="rear_plate_A", color=cq.Color(0.15, 0.15, 0.15)).add(g_pos, name="gasket", color=cq.Color(0.05, 0.05, 0.05)).add(b, name="front_ring_B", color=cq.Color(0.15, 0.15, 0.15))
+for i, (x, y) in enumerate(SCREWS, 1):
+    asm.add(barrel, name=f"chicago_barrel_{i}", loc=cq.Location(cq.Vector(x, y, 0)), color=cq.Color(0.75, 0.75, 0.78))
+    asm.add(screw, name=f"chicago_screw_{i}", loc=cq.Location(cq.Vector(x, y, 0)), color=cq.Color(0.75, 0.75, 0.78))
 here = __file__.rsplit("/", 1)[0]
 asm.save(f"{here}/oval_grommet_assembly.step")
 cq.exporters.export(a, f"{here}/oval_grommet_A_rear.step")
 cq.exporters.export(b.translate((0, 0, -(A_T + FABRIC + GASKET_T))), f"{here}/oval_grommet_B_front.step")
 cq.exporters.export(g, f"{here}/oval_grommet_gasket.step")
+cq.exporters.export(barrel, f"{here}/chicago_screw_barrel.step")
+cq.exporters.export(screw, f"{here}/chicago_screw_screw.step")
 for n, s in (("A", a), ("B", b)):
     bb = s.val().BoundingBox()
     print(n, round(bb.xlen, 2), round(bb.ylen, 2), round(bb.zlen, 2), round(s.val().Volume() * DENSITY_G_CM3 * 1e-3, 1), "g", s.val().isValid())
