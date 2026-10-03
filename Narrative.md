@@ -13,6 +13,7 @@ This document records what was asked, what was decided, why, and what followed.
 | [3](#entry-fix-deploy-use-minio-instead-of-localstack-for-local-docker-storage) | 2026-09-27 | fix(deploy): use MinIO instead of LocalStack for local docker storage | product | Apply the same decision already made for home-lab (MinIO built from source in `deploy/home-lab/minio/`) to local docker as well, reusing the same Dockerfiles rather than duplicating them, so local docker and home-lab stay in the same… |
 | [4](#entry-fix-local-docker-wire-up-auth-end-to-end-add-user-guide-with-screenshots) | 2026-09-27 | fix(local-docker): wire up auth end-to-end, add user guide with screenshots | product | Fixed each gap at the layer it belongs to rather than working around it in the app: added the missing script tag Blazor's own tooling expects, moved the custom claim mappers to the shared client scope so they reach every client that… |
 | [5](#entry-feat-web-offer-mobile-camera-capture-for-snag-photos) | 2026-09-28 | feat(web): offer mobile camera capture for snag photos | product | Offer separate upload and camera actions, each with text that names the action. |
+| [6](#entry-staff-reporter-appeal-design-spec-implementation-plan-acceptance-criteri) | 2026-10-03 | Staff reporter appeal: design spec, implementation plan, acceptance criteria | product | Option B was chosen: client-orchestrated single-pass uploads over the unchanged create/photo endpoints (no contract or MCP parity change), a server-resolved reporter filter on the existing cursor-paged list, context-enriched dispatcher… |
 
 ---
 
@@ -209,3 +210,26 @@ Mobile users can take and upload a photo in the same flow as a selected file. Ca
 ---
 
 AI-Fingerprint: sha256:889048e3bbcd
+
+---
+
+<a id="entry-staff-reporter-appeal-design-spec-implementation-plan-acceptance-criteri"></a>
+
+## Entry 6 — 2026-10-03 — Staff reporter appeal: design spec, implementation plan, acceptance criteria
+
+*Kind: product. Status: accepted.*
+
+## Context
+
+Staff reporters were the priority audience, with low-friction filing first and status-change visibility second. Evidence from the repo shaped the design: reporting is currently a two-step flow (photo-less form, photos added afterwards on the detail page), the list has only a status filter with no reporter view, and status mail already exists but carries a bare identifier body with no site context or link back.
+
+## Decision
+
+Option B was chosen: client-orchestrated single-pass uploads over the unchanged create/photo endpoints (no contract or MCP parity change), a server-resolved reporter filter on the existing cursor-paged list, context-enriched dispatcher mail with a deep link, and a static lifecycle strip on the detail page. Rejected: a multipart create-with-photos endpoint, client-side filtering by reporter name, enlarged domain-event payloads, and a full history endpoint (explicit follow-up).
+
+## Consequences
+
+This PR changes docs and acceptance criteria only; the 5-task implementation plan is ready to execute and the feature files are runner-agnostic Gherkin until a runner is adopted. No domain concepts, contracts, or lifecycle rules change.
+
+---
+AI-Fingerprint: sha256:176aeae78338
